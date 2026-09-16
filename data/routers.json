@@ -1,0 +1,13 @@
+[
+  {
+    "id": "default-router",
+    "name": "الراوتر الافتراضي (Default Router)",
+    "host": "192.168.88.1",
+    "port": 80,
+    "username": "admin",
+    "encryptedPassword": "",
+    "ssl": false,
+    "createdAt": "2026-09-10T22:29:33.944Z",
+    "updatedAt": "2026-09-10T22:29:33.944Z"
+  }
+]

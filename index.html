@@ -1,0 +1,2563 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tawaswl ISP Control Center - نظام إدارة شبكات مايكروتك الشامل</title>
+  <meta name="description" content="نظام إدارة شبكات مايكروتك وخدمات الإنترنت المتكامل - هوتسبوت، برودباند PPPoE، يوزر مانجر، مراقبة الترافيك وتصميم الكروت" />
+  <link rel="stylesheet" href="/style.css" />
+  <!-- Standalone High-Speed QR Code Generator -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="app-container" id="appRoot">
+
+    <!-- ====================================================================
+         Sidebar Navigation (Right in RTL, Left in LTR)
+         ==================================================================== -->
+    <aside class="sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">🌐</div>
+        <div class="brand-info">
+          <span class="brand-name">Tawaswl ISP</span>
+          <span class="brand-sub">Control Center</span>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="nav-item">
+          <a class="nav-link active" data-view="dashboard" id="nav-dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>الرئيسية</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="mikrotik" id="nav-mikrotik">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+            <span>الميكروتك</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="hotspot" id="nav-hotspot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            <span>الهوتسبوت</span>
+            <span class="nav-badge" id="navHotspotBadge">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="usermanager" id="nav-usermanager">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>User Manager</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="pppoe" id="nav-pppoe">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span>البرودباند (PPPoE)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="traffic" id="nav-traffic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>الترافيك المباشر</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="cards" id="nav-cards">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            <span>مصمم البطاقات</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="batchprint" id="nav-batchprint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            <span>الطباعة الجماعية</span>
+          </a>
+        </li>
+
+        <div class="nav-section-title">النظام والتقارير</div>
+
+        <li class="nav-item">
+          <a class="nav-link" data-view="terminal" id="nav-terminal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            <span>موجه الأوامر (Terminal)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="dhcp" id="nav-dhcp">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+            <span>توزيع العناوين (DHCP)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="neighbors" id="nav-neighbors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            <span>أجهزة الشبكة (Neighbors)</span>
+            <span class="nav-badge" id="navNeighborsBadge" style="background:var(--accent-teal); display:none;">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="diagnostics" id="nav-diagnostics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+            <span>أدوات الفحص (Ping)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="logs" id="nav-logs">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>سجلات الراوتر (Logs)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="reports" id="nav-reports">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>التقارير</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="alerts" id="nav-alerts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span>الإشعارات</span>
+            <span class="nav-badge" id="navAlertsBadge" style="background:var(--accent-rose); display:none;">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-view="settings" id="nav-settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>الإعدادات</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="router-status-pill" id="sidebarRouterPill" onclick="openRouterManagerModal()" style="cursor:pointer;" title="انقر لإدارة الراوترات وفحص الاتصال">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span class="status-dot" id="sidebarStatusDot" style="background:#64748b;"></span>
+            <span style="font-weight:700;" id="sidebarStatusText">الراوتر: غير متصل</span>
+          </div>
+          <span style="font-size:0.75rem; color:var(--text-dim);" id="sidebarRouterModel">لا يوجد راوتر نشط</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         Main Wrapper & Top Navigation Bar
+         ==================================================================== -->
+    <div class="main-wrapper">
+      <header class="top-header">
+        <div class="header-left">
+          <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="القائمة الجانبية">
+            ☰
+          </button>
+          
+          <div class="quick-search">
+            <span class="quick-search-icon">🔍</span>
+            <input type="text" id="globalQuickSearch" placeholder="بحث سريع عن مستخدم، IP، باقة..." />
+          </div>
+
+          <div class="router-select-dropdown" onclick="openRouterManagerModal()" title="إدارة وتبديل أجهزة المايكروتك">
+            <span>⚡</span>
+            <select id="routerSelectDropdown" class="filter-select" style="border:none; background:transparent; padding:0; cursor:pointer;" onchange="switchActiveRouter(this.value)">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+
+          <!-- Live Router Sync Badge -->
+          <div class="badge-status-pill badge-status-offline" id="topRouterSyncBadge" style="cursor:pointer; padding: 4px 10px; font-size:0.78rem;" onclick="syncRouterDataLive()" title="انقر للمزامنة الفورية مع الراوتربورد">
+            <span class="status-dot" id="topLiveSyncDot" style="background:#64748b;"></span>
+            <span id="topLiveSyncText">غير متصل</span>
+          </div>
+
+          <!-- Hardware Resource Metrics (Sophisticated Dark Monitoring) -->
+          <div class="header-hw-stats">
+            <div class="hw-item" title="استهلاك المعالج CPU الحقيقي">
+              <span class="hw-label">المعالج:</span>
+              <div class="hw-bar-track">
+                <div class="hw-bar-fill hw-bar-blue" id="headerCpuFill" style="width: 0%;"></div>
+              </div>
+              <span class="hw-val-mono text-blue" id="headerCpuVal">--</span>
+            </div>
+            <div class="hw-item" title="استهلاك الذاكرة RAM الحقيقي">
+              <span class="hw-label">الذاكرة:</span>
+              <div class="hw-bar-track">
+                <div class="hw-bar-fill hw-bar-emerald" id="headerRamFill" style="width: 0%;"></div>
+              </div>
+              <span class="hw-val-mono text-emerald" id="headerRamVal">--</span>
+            </div>
+          </div>
+
+          <div class="hw-uptime-pill" title="وقت التشغيل Uptime الحقيقي للراوتر">
+            <span>⏱️</span>
+            <span id="headerUptimeVal">--</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Refresh Live Status -->
+          <button class="icon-btn" onclick="syncRouterDataLive()" title="مزامنة وجلب بيانات حية من الراوتربورد">
+            🔄
+          </button>
+
+          <!-- Notifications Button -->
+          <button class="icon-btn" onclick="switchView('alerts')" title="التنبيهات">
+            🔔
+            <span class="icon-badge" id="headerAlertsBadge" style="display:none;">0</span>
+          </button>
+
+          <!-- Dark/Light Theme Toggle -->
+          <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="تبديل الوضع">
+            ☀️
+          </button>
+
+          <!-- Language Switcher (AR/EN) -->
+          <button class="icon-btn" onclick="toggleLanguage()" title="Language / اللغة">
+            🌐
+          </button>
+
+          <!-- User Profile Pill -->
+          <div class="user-profile-widget" onclick="showToast('حامد هزاع - مدير النظام (Admin Core)', 'info')">
+            <div class="user-avatar-img">ح</div>
+            <div class="user-meta">
+              <span class="user-name-title">حامد هزاع</span>
+              <span class="user-role-sub">مدير النظام</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================================================================
+           Main Views Container
+           ================================================================== -->
+      <main class="content-body">
+
+        <!-- ================================================================
+             1. DASHBOARD VIEW (Quadrant 1 in Screenshot)
+             ================================================================ -->
+        <section class="view-panel active" id="view-dashboard">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active" id="currentBreadcrumb">لوحة التحكم الرئيسية</span>
+              </div>
+              <h1 class="view-main-title">📊 لوحة التحكم الرئيسية</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-secondary" onclick="exportWinboxRscScript()">📥 تصدير سكربت Winbox</button>
+              <button class="btn btn-primary" onclick="openBatchPrintModal()">⚡ توليد وطباعة كروت</button>
+            </div>
+          </div>
+
+          <!-- Top 4 KPI Stat Cards -->
+          <div class="stats-grid-4">
+            <div class="stat-card stat-purple">
+              <div class="stat-content">
+                <span class="stat-label">المستخدمين الكلي</span>
+                <span class="stat-number" id="kpiTotalUsers">0</span>
+                <span class="stat-badge badge-neutral" id="kpiTotalUsersBadge">إجمالي</span>
+              </div>
+              <div class="stat-icon-wrapper">👥</div>
+            </div>
+
+            <div class="stat-card stat-teal">
+              <div class="stat-content">
+                <span class="stat-label">المتصلين الآن</span>
+                <span class="stat-number" id="liveOnlineCount">0</span>
+                <span class="stat-badge badge-neutral" id="kpiOnlineBadge">مباشر</span>
+              </div>
+              <div class="stat-icon-wrapper">📶</div>
+            </div>
+
+            <div class="stat-card stat-blue">
+              <div class="stat-content">
+                <span class="stat-label">استهلاك اليوم</span>
+                <span class="stat-number" id="kpiTodayBandwidth">0 <small style="font-size:1rem;">GB</small></span>
+                <span class="stat-badge badge-neutral" id="kpiTrafficBadge">اليوم</span>
+              </div>
+              <div class="stat-icon-wrapper">☁️</div>
+            </div>
+
+            <div class="stat-card stat-amber">
+              <div class="stat-content">
+                <span class="stat-label">عدد الأجهزة المتصلة</span>
+                <span class="stat-number" id="kpiTotalDevices">0</span>
+                <span class="stat-badge badge-neutral" id="kpiDevicesBadge">DHCP</span>
+              </div>
+              <div class="stat-icon-wrapper">📟</div>
+            </div>
+          </div>
+
+          <!-- Main Grid: Live Bandwidth Chart & User Distribution Donut -->
+          <div class="dashboard-grid-2">
+            <!-- Live Traffic Chart Card -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">
+                  <span>📈 استهلاك الإنترنت (اليوم)</span>
+                </div>
+                <div class="chart-legend-group">
+                  <div class="legend-item">
+                    <span class="legend-color-dot dot-download"></span>
+                    <span>تحميل: <strong id="liveDownloadSpeed">0.0 Mbps</strong></span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color-dot dot-upload"></span>
+                    <span>رفع: <strong id="liveUploadSpeed">0.0 Mbps</strong></span>
+                  </div>
+                </div>
+              </div>
+              <div class="chart-canvas-container">
+                <canvas id="trafficMainCanvas"></canvas>
+              </div>
+            </div>
+
+            <!-- User Distribution Donut Card -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">توزيع المستخدمين حسب النوع</div>
+              </div>
+              <div class="donut-chart-wrapper">
+                <canvas id="userDistributionCanvas"></canvas>
+                <div class="donut-inner-total">
+                  <div class="donut-total-val" id="donutTotalVal">0</div>
+                  <div class="donut-total-lbl">الإجمالي</div>
+                </div>
+                <div class="donut-legend-list" id="donutLegendList">
+                  <div class="legend-item"><span class="legend-color-dot dot-hotspot"></span> Hotspot: <strong id="legendHotspotCount">0</strong></div>
+                  <div class="legend-item"><span class="legend-color-dot dot-pppoe"></span> PPPoE: <strong id="legendPppoeCount">0</strong></div>
+                  <div class="legend-item"><span class="legend-color-dot dot-userman"></span> User Manager: <strong id="legendUsermanCount">0</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Grid: Top Talkers & System Alerts -->
+          <div class="dashboard-grid-2">
+            <!-- Top Consuming Users -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">👑 أكثر المستخدمين استهلاكاً</div>
+                <span style="font-size:0.75rem; color:var(--text-dim);">هذا الشهر</span>
+              </div>
+              <div class="rank-list-wrapper" id="dashboardTopTalkersList">
+                <div style="text-align:center; padding:2rem 1rem; color:var(--text-dim); font-size:0.85rem;">
+                  لا توجد بيانات استهلاك مستخدمين حالياً
+                </div>
+              </div>
+            </div>
+
+            <!-- System Alerts Card -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">⚠️ تنبيهات النظام</div>
+                <span class="badge-status-pill badge-status-online" id="dashboardSystemStatusPill">
+                  <span class="status-dot"></span> جاهز
+                </span>
+              </div>
+              <div class="alerts-list-group" id="dashboardAlertsList">
+                <div style="text-align:center; padding:2rem 1rem; color:var(--text-dim); font-size:0.85rem;">
+                  ✅ لا توجد تنبيهات حالية، النظام يعمل بصورة مستقرة
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ================================================================
+             1.5. MIKROTIK ROUTEROS MANAGEMENT VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-mikrotik">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">أجهزة الميكروتك</span>
+              </div>
+              <h1 class="view-main-title">⚡ إدارة أجهزة MikroTik RouterOS</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-secondary" onclick="exportWinboxRscScript()">📥 تصدير كود .rsc</button>
+              <button class="btn btn-primary" onclick="openRouterManagerModal()">+ إضافة راوتر جديد</button>
+            </div>
+          </div>
+
+          <!-- Active MikroTik Info & Hardware Card -->
+          <div class="dashboard-card" style="margin-bottom:1.25rem;">
+            <div class="dashboard-card-header">
+              <div class="card-title">📡 الراوتر المتصل حالياً: <span id="mikrotikActiveName" style="color:var(--primary);">لا يوجد راوتر نشط</span></div>
+              <span class="badge-status-pill badge-status-offline" id="mikrotikViewStatusPill"><span class="status-dot" style="background:#64748b;"></span> غير متصل</span>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:0.75rem;">
+              <div class="stat-card" style="background:var(--bg-input);">
+                <div class="stat-content">
+                  <span class="stat-label">الموديل والمعالج</span>
+                  <span style="font-weight:700; color:var(--text-main); font-size:0.95rem;" id="mikrotikViewModel">--</span>
+                  <span style="font-size:0.72rem; color:var(--text-dim);" id="mikrotikViewCpu">--</span>
+                </div>
+              </div>
+              <div class="stat-card" style="background:var(--bg-input);">
+                <div class="stat-content">
+                  <span class="stat-label">إصدار النظام</span>
+                  <span style="font-weight:700; color:var(--accent-emerald); font-size:0.95rem;" id="mikrotikViewVersion">--</span>
+                  <span style="font-size:0.72rem; color:var(--text-dim);" id="mikrotikViewArch">--</span>
+                </div>
+              </div>
+              <div class="stat-card" style="background:var(--bg-input);">
+                <div class="stat-content">
+                  <span class="stat-label">العنوان والمنفذ</span>
+                  <span class="font-mono" style="font-weight:700; color:var(--secondary); font-size:0.95rem;" id="mikrotikViewEndpoint">--</span>
+                  <span style="font-size:0.72rem; color:var(--text-dim);" id="mikrotikViewProto">REST API</span>
+                </div>
+              </div>
+              <div class="stat-card" style="background:var(--bg-input);">
+                <div class="stat-content">
+                  <span class="stat-label">وقت التشغيل Uptime</span>
+                  <span style="font-weight:700; color:var(--accent-amber); font-size:0.95rem;" id="mikrotikViewUptime">--</span>
+                  <span style="font-size:0.72rem; color:var(--text-dim);" id="mikrotikViewUptimeSub">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MikroTik Interfaces & Quick Actions -->
+          <div class="dashboard-grid-2">
+            <div class="table-card">
+              <div class="table-toolbar">
+                <div style="font-weight:700;">منافذ الشبكة (Ethernet & SFP Interfaces)</div>
+                <button class="btn btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="syncRouterDataLive()">🔄 تحديث</button>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>المنفذ</th>
+                      <th>النوع</th>
+                      <th>الحالة</th>
+                      <th>السرعة المتفاوضة</th>
+                      <th>RX / TX Mbps</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mikrotikInterfacesTableBody">
+                    <tr>
+                      <td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-dim);">لا توجد منافذ شبكة مسجلة أو الراوتر غير متصل</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Quick MikroTik Tools -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">⚡ أدوات وأوامر الميكروتك</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                <button class="btn btn-secondary" style="justify-content:flex-start;" onclick="testRouterConnection(AppState.activeRouter.id)">
+                  <span>📡</span> <span>فحص اتصال REST API</span>
+                </button>
+                <button class="btn btn-secondary" style="justify-content:flex-start;" onclick="exportWinboxRscScript()">
+                  <span>📥</span> <span>تصدير سكريبت المشتركين .rsc</span>
+                </button>
+                <button class="btn btn-secondary" style="justify-content:flex-start;" onclick="showToast('تم أخذ نسخة احتياطية محلية للراوتر', 'success')">
+                  <span>💾</span> <span>أخذ نسخة Backup من الراوتر</span>
+                </button>
+                <button class="btn btn-secondary" style="justify-content:flex-start;" onclick="showToast('تم إرسال إشارة تنظيف الكاش والاتصالات المعلقة', 'info')">
+                  <span>🧹</span> <span>مسح كاش DNS والجلسات المعلقة</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ================================================================
+             2. HOTSPOT MANAGEMENT VIEW (Quadrant 2 in Screenshot)
+             ================================================================ -->
+        <section class="view-panel" id="view-hotspot">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">الهوتسبوت</span>
+              </div>
+              <h1 class="view-main-title">📶 إدارة الهوتسبوت</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-secondary" onclick="switchView('neighbors')" title="عرض الأجهزة المجاورة والموصولة عبر IP Hotspot Host & Neighbor">📡 الأجهزة المتصلة (Neighbors)</button>
+              <button class="btn btn-secondary" onclick="openBatchPrintModal()">🖨️ طباعة جماعية</button>
+              <button class="btn btn-success" onclick="generateBatchVouchers(10)">⚡ توليد كروت (10)</button>
+              <button class="btn btn-primary" onclick="openAddUserModal()">+ مستخدم جديد</button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <!-- Table Filter Toolbar -->
+            <div class="table-toolbar">
+              <div class="table-filters">
+                <div class="quick-search" style="width:220px;">
+                  <span class="quick-search-icon">🔍</span>
+                  <input type="text" id="hotspotSearchInput" placeholder="بحث عن مستخدم..." oninput="AppState.searchQuery=this.value; renderHotspotTable();" />
+                </div>
+
+                <select class="filter-select" id="hotspotProfileFilter">
+                  <option value="all">كل الباقات</option>
+                  <option value="30GB">30GB</option>
+                  <option value="50GB">50GB</option>
+                  <option value="100GB">100GB</option>
+                  <option value="Unlimited">Unlimited</option>
+                </select>
+
+                <select class="filter-select" id="hotspotStatusFilter">
+                  <option value="all">كل الحالات</option>
+                  <option value="online">متصل</option>
+                  <option value="offline">غير متصل</option>
+                </select>
+              </div>
+
+              <div style="font-size:0.8rem; color:var(--text-muted);">
+                إجمالي المشتركين: <strong style="color:var(--text-main);">8,523</strong>
+              </div>
+            </div>
+
+            <!-- Table Responsive -->
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>المستخدم</th>
+                    <th>الباقة</th>
+                    <th>الاستهلاك</th>
+                    <th>الحالة</th>
+                    <th>تاريخ الإنشاء</th>
+                    <th>تاريخ الإنتهاء</th>
+                    <th style="text-align:center;">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="hotspotTableBody">
+                  <!-- Rendered dynamically by script.js -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Table Pagination Bar -->
+            <div class="table-pagination">
+              <div id="hotspotPaginationCount">عرض 1-10 من 8523 مستخدم</div>
+              <div class="pagination-pages">
+                <button class="page-btn" onclick="AppState.currentPage=Math.max(1, AppState.currentPage-1); renderHotspotTable();">‹</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn" onclick="AppState.currentPage=2; renderHotspotTable();">2</button>
+                <button class="page-btn" onclick="AppState.currentPage=3; renderHotspotTable();">3</button>
+                <button class="page-btn" onclick="AppState.currentPage=4; renderHotspotTable();">4</button>
+                <button class="page-btn" onclick="AppState.currentPage=5; renderHotspotTable();">5</button>
+                <span>...</span>
+                <button class="page-btn" onclick="AppState.currentPage=171; renderHotspotTable();">171</button>
+                <button class="page-btn" onclick="AppState.currentPage=Math.min(171, AppState.currentPage+1); renderHotspotTable();">›</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ================================================================
+             3. USER MANAGER PROFILES VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-usermanager">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">User Manager</span>
+              </div>
+              <h1 class="view-main-title">👥 إدارة باقات User Manager</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-primary" onclick="openAddProfileModal()">+ إضافة باقة جديدة</button>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;" id="usermanProfilesGrid">
+            <!-- Rendered by script.js -->
+          </div>
+        </section>
+
+
+        <!-- ================================================================
+             4. PPPOE BROADBAND VIEW WITH REMOTE IP LAUNCHER
+             ================================================================ -->
+        <section class="view-panel" id="view-pppoe">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">البرودباند (PPPoE)</span>
+              </div>
+              <h1 class="view-main-title">🌐 إدارة حسابات البرودباند (PPPoE)</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-primary" onclick="openAddPPPoEModal()">+ اشتراك برودباند جديد</button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-toolbar">
+              <div style="font-weight:700;">قائمة الجلسات النشطة وحسابات PPPoE Secrets</div>
+              <span class="badge-status-pill badge-status-online">3 متصلين الآن</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>المشترك / المنفذ</th>
+                    <th>الباقة</th>
+                    <th>Local IP</th>
+                    <th>Remote IP (راوتر العميل)</th>
+                    <th>MAC Address</th>
+                    <th>مدة الجلسة</th>
+                    <th>الحالة</th>
+                    <th style="text-align:center;">إجراءات وتحكم</th>
+                  </tr>
+                </thead>
+                <tbody id="pppoeTableBody">
+                  <!-- Rendered dynamically by script.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ================================================================
+             5. REALTIME TRAFFIC MONITORING VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-traffic">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">مراقبة الترافيك</span>
+              </div>
+              <h1 class="view-main-title">⚡ مراقبة حركة البيانات والترافيك في الوقت الحقيقي</h1>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap:1.25rem;" id="realtimeInterfacesList">
+            <!-- Rendered dynamically -->
+          </div>
+        </section>
+
+
+        <!-- ================================================================
+             6. CARD / VOUCHER DESIGNER (Quadrant 4 in Screenshot)
+             ================================================================ -->
+        <section class="view-panel" id="view-cards">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span>البطاقات والكروت</span> / <span class="active">مصمم البطاقات</span>
+              </div>
+              <h1 class="view-main-title">🎨 مصمم البطاقات (الكروت)</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-secondary" onclick="showToast('تم التراجع', 'info')">↩ تراجع</button>
+              <button class="btn btn-secondary" onclick="showToast('تمت الإعادة', 'info')">↪ إعادة</button>
+              <button class="btn btn-primary" onclick="showToast('تم حفظ قالب البطاقة بنجاح!', 'success')">💾 حفظ القالب</button>
+              <button class="btn btn-success" onclick="openBatchPrintModal()">🖨️ طباعة جماعية</button>
+            </div>
+          </div>
+
+          <div class="card-designer-container">
+            <!-- Left Toolbar Elements -->
+            <div class="designer-tools-bar">
+              <button class="tool-item-btn active" title="نص">
+                <span style="font-size:1.1rem;">T</span>
+                <span>نص</span>
+              </button>
+              <button class="tool-item-btn" title="صورة">
+                <span style="font-size:1.1rem;">🖼️</span>
+                <span>صورة</span>
+              </button>
+              <button class="tool-item-btn" title="QR Code">
+                <span style="font-size:1.1rem;">📱</span>
+                <span>QR</span>
+              </button>
+              <button class="tool-item-btn" title="باركود">
+                <span style="font-size:1.1rem;">|||||</span>
+                <span>باركود</span>
+              </button>
+              <button class="tool-item-btn" title="شكل">
+                <span style="font-size:1.1rem;">◇</span>
+                <span>شكل</span>
+              </button>
+              <button class="tool-item-btn" title="خلفية">
+                <span style="font-size:1.1rem;">🎨</span>
+                <span>لون</span>
+              </button>
+            </div>
+
+            <!-- Center Stage: Live Card Preview Visual -->
+            <div class="canvas-stage-wrapper">
+              <!-- Top Preview Bar above Voucher Card -->
+              <div class="card-stage-topbar" id="cardStageTopbar">
+                <span class="card-stage-badge">
+                  <span class="live-dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981;"></span>
+                  معاينة البطاقة الحية
+                </span>
+                <button type="button" class="btn btn-secondary btn-preview-print" id="btnPreviewPrintA4" onclick="openA4PrintPreviewModal()" title="معاينة شكل البطاقة عند طباعتها على ورق A4">
+                  <span>📄</span>
+                  <span>معاينة الطباعة</span>
+                  <span class="badge-a4-pill">ورق A4</span>
+                </button>
+              </div>
+
+              <div class="voucher-card-preview" id="designerVoucherPreview">
+                <!-- SVG Decorative Wave -->
+                <svg class="card-bg-wave-svg" viewBox="0 0 500 150" preserveAspectRatio="none">
+                  <path d="M0,80 C150,160 350,0 500,80 L500,150 L0,150 Z" fill="rgba(255,255,255,0.15)"></path>
+                </svg>
+
+                <div class="card-header-row">
+                  <div class="card-brand-title">
+                    <span id="previewCardIcon">🌐</span>
+                    <span id="previewCardBrand">تواصل لخدمات الإنترنت</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span id="previewCardPrice" style="font-size:0.75rem; background:rgba(0,0,0,0.3); padding:2px 8px; border-radius:10px; font-weight:800; color:#fbbf24;">5$</span>
+                    <span id="previewCardProfile" style="font-size:0.75rem; background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:10px;">30GB</span>
+                  </div>
+                </div>
+
+                <div class="card-body-row">
+                  <div class="card-credentials-box">
+                    <div class="card-cred-label">اسم المستخدم (Username)</div>
+                    <div class="card-cred-val" id="previewCardUser">user_84920</div>
+                    <div class="card-cred-label" style="margin-top:4px;">كلمة المرور (Password)</div>
+                    <div class="card-cred-val" id="previewCardPass">94821034</div>
+                    <div id="previewCardHostBox" style="font-size:0.65rem; opacity:0.85; margin-top:3px; font-family:'JetBrains Mono';">
+                      🔗 <span id="previewCardHost">http://10.0.0.1/login</span>
+                    </div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                    <div class="card-qr-container" id="previewCardQrBox">
+                      <!-- Dynamic Smart QR Canvas -->
+                    </div>
+                    <div class="card-barcode-box" id="previewCardBarcodeBox" style="display:none;">
+                      <!-- Dynamic Barcode SVG -->
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-footer-row">
+                  <span id="previewCardSlogan">شكراً لإختياركم خدماتنا Tawaswl ISP</span>
+                  <span id="previewCardPhone" style="direction:ltr; font-family:'JetBrains Mono'; font-weight:700;">📞 770-000-000</span>
+                </div>
+              </div>
+
+              <!-- Template Presets Carousel below Canvas -->
+              <div style="width:100%; margin-top:1.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                  <div style="font-size:0.85rem; font-weight:800; color:var(--text-main);">🎨 القوالب الجاهزة المعتمدة:</div>
+                  <button class="btn btn-secondary" style="padding:2px 10px; font-size:0.75rem;" onclick="createNewTemplateModal()">+ إنشاء قالب خاص</button>
+                </div>
+                <div class="templates-carousel" id="templatesCarousel">
+                  <!-- Populated by script.js -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Inspector Properties Sidebar -->
+            <div class="designer-props-sidebar">
+              <div style="font-size:0.95rem; font-weight:800; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+                <span>⚙️ محرر وتخصيص البطاقة</span>
+                <span style="font-size:0.75rem; color:var(--primary-light);">مباشر ⚡</span>
+              </div>
+
+              <div class="form-row">
+                <div class="prop-group" style="flex:1;">
+                  <label class="prop-label">الأيقونة / الشعار</label>
+                  <select class="prop-select" id="propIcon" onchange="updateCardDesignPreview()">
+                    <option value="🌐">🌐 شبكة</option>
+                    <option value="📶">📶 وايفاي</option>
+                    <option value="⚡">⚡ فايبر</option>
+                    <option value="🚀">🚀 تيربو</option>
+                    <option value="💎">💎 VIP</option>
+                    <option value="☕">☕ كافيه</option>
+                    <option value="🎮">🎮 ألعاب</option>
+                  </select>
+                </div>
+                <div class="prop-group" style="flex:2;">
+                  <label class="prop-label">اسم الشبكة / المركز</label>
+                  <input type="text" class="prop-input" id="propCompanyName" value="تواصل لخدمات الإنترنت" oninput="updateCardDesignPreview()" />
+                </div>
+              </div>
+
+              <div class="prop-group">
+                <label class="prop-label">صفحة تسجيل الدخول للراوتر (Smart Login Host)</label>
+                <input type="text" class="prop-input" id="propLoginHost" value="10.0.0.1/login" placeholder="10.0.0.1/login أو login.net" oninput="updateCardDesignPreview()" />
+              </div>
+
+              <div class="form-row">
+                <div class="prop-group" style="flex:1;">
+                  <label class="prop-label">هاتف الدعم / واتساب</label>
+                  <input type="text" class="prop-input" id="propSupportPhone" value="770-000-000" placeholder="رقم خدمة العملاء" oninput="updateCardDesignPreview()" />
+                </div>
+                <div class="prop-group" style="flex:1;">
+                  <label class="prop-label">سعر الكرت الافتراضي</label>
+                  <input type="text" class="prop-input" id="propPrice" value="5$" placeholder="مثال: 5$ أو 1000 ريال" oninput="updateCardDesignPreview()" />
+                </div>
+              </div>
+
+              <div class="prop-group">
+                <label class="prop-label">النص السفلي والترحيب (Slogan)</label>
+                <input type="text" class="prop-input" id="propSlogan" value="شكراً لإختياركم خدماتنا Tawaswl ISP" oninput="updateCardDesignPreview()" />
+              </div>
+
+              <div class="prop-group">
+                <label class="prop-label">نوع رمز التحقق والباركود</label>
+                <select class="prop-select" id="propCodeType" onchange="updateCardDesignPreview()">
+                  <option value="qr">رمز استجابة سريعة QR (تسجيل دخول تلقائي ذكي)</option>
+                  <option value="barcode">باركود رقمي Barcode (Code 128)</option>
+                  <option value="both">كلاهما معاً (Smart QR + Barcode)</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="prop-group" style="flex:1;">
+                  <label class="prop-label">اللون الرئيسي</label>
+                  <input type="color" class="prop-input" id="propColor" value="#0f6b66" style="height:38px; cursor:pointer;" onchange="updateCardDesignPreview()" />
+                </div>
+                <div class="prop-group" style="flex:1;">
+                  <label class="prop-label">استدارة الحواف</label>
+                  <input type="number" class="prop-input" id="propRadius" value="12" min="0" max="30" oninput="updateCardDesignPreview()" />
+                </div>
+              </div>
+
+              <!-- Typography & Font Sizes Control for Username & Password -->
+              <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; padding:0.6rem; margin-top:0.25rem;">
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span>🔤 حجم خط بيانات تسجيل الدخول</span>
+                  <span style="font-size:0.7rem; color:var(--text-dim);">وضوح الطباعة</span>
+                </div>
+                <div class="form-row" style="margin-bottom:0.35rem;">
+                  <div class="prop-group" style="flex:1; margin-bottom:0;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-bottom:2px;">
+                      <span>اسم المستخدم</span>
+                      <strong id="valUserFontSize" style="color:var(--primary-light);">17px</strong>
+                    </div>
+                    <input type="range" class="prop-input" id="propUserFontSize" min="11" max="28" value="17" style="height:24px; padding:0; cursor:pointer;" oninput="updateCardDesignPreview()" />
+                  </div>
+                  <div class="prop-group" style="flex:1; margin-bottom:0;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-bottom:2px;">
+                      <span>كلمة المرور</span>
+                      <strong id="valPassFontSize" style="color:var(--accent-amber);">17px</strong>
+                    </div>
+                    <input type="range" class="prop-input" id="propPassFontSize" min="11" max="28" value="17" style="height:24px; padding:0; cursor:pointer;" oninput="updateCardDesignPreview()" />
+                  </div>
+                </div>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <button type="button" class="btn btn-secondary" style="flex:1; font-size:0.68rem; padding:2px 4px;" onclick="setCardFontSizePreset(13, 13)">A4 مدمج (13px)</button>
+                  <button type="button" class="btn btn-secondary" style="flex:1; font-size:0.68rem; padding:2px 4px;" onclick="setCardFontSizePreset(17, 17)">قياسي (17px)</button>
+                  <button type="button" class="btn btn-secondary" style="flex:1; font-size:0.68rem; padding:2px 4px;" onclick="setCardFontSizePreset(22, 22)">حراري POS (22px)</button>
+                </div>
+              </div>
+
+              <div class="prop-group">
+                <label class="prop-label">تنسيق ونمط الطباعة المفضل</label>
+                <select class="prop-select" id="propPaperFormat">
+                  <option value="a4-24">A4 قياسي (24 كرت بالصفحة - مقاس مثالي)</option>
+                  <option value="a4-12">A4 بطاقات كبيرة (12 كرت بالصفحة)</option>
+                  <option value="a5-8">A5 نصف صفحة (8 كروت)</option>
+                  <option value="thermal-80">طابعة إيصالات حرارية POS (رول 80mm)</option>
+                  <option value="thermal-58">طابعة إيصالات حرارية POS (رول 58mm)</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                <input type="checkbox" id="propCutLines" checked style="cursor:pointer; width:16px; height:16px;" />
+                <label for="propCutLines" style="font-size:0.8rem; cursor:pointer; color:var(--text-main);">تضمين خطوط وعلامات القص الدقيقة ✂️ (Cut Lines)</label>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.75rem;">
+                <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="printSingleCard('hs-1')">
+                  🖨️ تجربة طباعة الكرت الآن
+                </button>
+                <button class="btn btn-secondary" style="width:100%; justify-content:center;" onclick="createNewTemplateModal()">
+                  💾 حفظ التصميم كقالب جديد
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ================================================================
+             7. BATCH PRINTING VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-batchprint">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">الطباعة الجماعية</span>
+              </div>
+              <h1 class="view-main-title">🖨️ مركز التوليد والطباعة الجماعية لبطاقات الإنترنت</h1>
+            </div>
+          </div>
+
+          <div class="table-card" style="padding:1.5rem;">
+            <div style="font-size:0.95rem; font-weight:800; margin-bottom:1rem; color:var(--primary-light);">
+              📋 بيانات وتجهيز دفعة الكروت (Batch Configuration):
+            </div>
+
+            <div class="form-row" style="margin-bottom:1rem;">
+              <div class="form-group" style="flex:2;">
+                <label class="form-label">اسم الدفعة أو الموزع (Reseller / Batch Name)</label>
+                <input type="text" class="form-control" id="batchResellerName" value="دفعة الكروت العامة - المركز الرئيسي" placeholder="مثال: دفعة كافيه النور أو موزع المربع 4" />
+              </div>
+
+              <div class="form-group" style="flex:1;">
+                <label class="form-label">عدد البطاقات المطلوب توليدها</label>
+                <select class="form-control" id="batchPrintCount">
+                  <option value="12">12 كرت (نصف ورقة A4)</option>
+                  <option value="24" selected>24 كرت (صفحة A4 كاملة - موصى بها)</option>
+                  <option value="48">48 كرت (صفحتين A4)</option>
+                  <option value="96">96 كرت (4 صفحات A4)</option>
+                  <option value="10">10 كروت (رول حراري سريع)</option>
+                  <option value="50">50 كرت</option>
+                  <option value="100">100 كرت</option>
+                  <option value="250">250 كرت</option>
+                  <option value="500">500 كرت</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-bottom:1rem;">
+              <div class="form-group">
+                <label class="form-label">نمط الحسابات (Account Credentials Format)</label>
+                <select class="form-control" id="batchAccountMode">
+                  <option value="user_pass">مستخدم وكلمة مرور منفصلين (أمان قياسي)</option>
+                  <option value="user_equals_pass">اسم المستخدم = كلمة المرور (دخول سريع وسهل للعملاء)</option>
+                  <option value="pin_only">رمز PIN موحد فقط (PIN Only)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">مجموعة الرموز (Character Set)</label>
+                <select class="form-control" id="batchCharSet">
+                  <option value="easy-read" selected>سهل القراءة (بدون حروف وأرقام متشابهة)</option>
+                  <option value="numeric">أرقام فقط (0-9 - سهلة جداً)</option>
+                  <option value="uppercase">أحرف إنجليزية كبيرة (A-Z)</option>
+                  <option value="alphanumeric">أرقام وحروف مدمجة</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">بادئة اسم المستخدم (Prefix)</label>
+                <input type="text" class="form-control" id="batchPrintPrefix" value="card_" placeholder="مثال: net_ أو card_" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">طول الرمز العشوائي (Digits)</label>
+                <select class="form-control" id="batchCodeLength">
+                  <option value="6" selected>6 خانات (سريع وسهل)</option>
+                  <option value="8">8 خانات (قياسي)</option>
+                  <option value="10">10 خانات (عالي الأمان)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-bottom:1.5rem;">
+              <div class="form-group">
+                <label class="form-label">نوع باقة الإنترنت المرفقة</label>
+                <select class="form-control" id="batchPrintProfile">
+                  <option value="30GB Super Speed">30GB Super Speed (30 يوم)</option>
+                  <option value="50GB Ultra Gold">50GB Ultra Gold (30 يوم)</option>
+                  <option value="100GB Max Turbo">100GB Max Turbo (60 يوم)</option>
+                  <option value="Unlimited VIP Fiber">Unlimited VIP Fiber (30 يوم)</option>
+                  <option value="10GB Economy">10GB Economy (15 يوم)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">مدة الصلاحية (Limit Uptime)</label>
+                <select class="form-control" id="batchTimeLimit">
+                  <option value="30d" selected>30 يوم (30d)</option>
+                  <option value="15d">15 يوم (15d)</option>
+                  <option value="7d">أسبوع (7d)</option>
+                  <option value="1d">24 ساعة (1d)</option>
+                  <option value="12h">12 ساعة (12h)</option>
+                  <option value="">غير محدد</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">سعر الكرت للجمهور</label>
+                <input type="text" class="form-control" id="batchCardPrice" value="5$" placeholder="مثال: 5$ أو 1000 ريال" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">قالب تصميم البطاقة المعتمد</label>
+                <select class="form-control" id="batchTemplateSelector" onchange="selectCardTemplate(this.value)">
+                  <option value="tmpl-teal-wave">Teal Wave Pro (فاخر أخضر)</option>
+                  <option value="tmpl-vip-dark">Dark VIP Gold (أسود ملكي ذهبي)</option>
+                  <option value="tmpl-cyan-wave">Cyber Blue Turbo (فايبر أزرق)</option>
+                  <option value="tmpl-clean-white">Minimal Modern (أبيض حديث)</option>
+                  <option value="tmpl-eco-print">Eco Ink-Saver (اقتصادي أبيض وأسود موفر للحبر)</option>
+                  <option value="tmpl-thermal-pos">Thermal Receipt (إيصال كاشير حراري 80mm)</option>
+                  <option value="tmpl-gaming-red">Gaming Nitro (أحمر رياضي)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">مقاس ورق الطباعة وشبكة الكروت</label>
+                <select class="form-control" id="batchPaperSize">
+                  <option value="a4-24">A4 شبكة (24 كرت بالصفحة 4x6 - اقتصادي)</option>
+                  <option value="a4-12">A4 شبكة كبيرة (12 كرت بالصفحة 3x4)</option>
+                  <option value="thermal-roll">طابعة فواتير حرارية (80mm Thermal Continuous Roll)</option>
+                  <option value="a5-8">A5 مقاس متوسط (8 كروت بالصفحة)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; padding:0.85rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="batchCutLines" checked style="cursor:pointer; width:16px; height:16px;" />
+                <label for="batchCutLines" style="font-size:0.82rem; cursor:pointer; color:var(--text-main); font-weight:700;">
+                  تفعيل خطوط وعلامات القص ✂️ (Crop Marks) بين البطاقات لتسهيل القطع
+                </label>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="batchAutoSyncRouter" checked style="cursor:pointer; width:16px; height:16px;" />
+                <label for="batchAutoSyncRouter" style="font-size:0.82rem; cursor:pointer; color:var(--primary-light); font-weight:700;">
+                  إرسال وإضافة الكروت فورياً لسيرفر المايكروتك المتصل (RouterOS) ⚡
+                </label>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="executeBatchPrint()">🖨️ توليد وطباعة الدفعة الآن</button>
+              <button class="btn btn-secondary" onclick="exportBatchCsv()">📊 تصدير الدفعة (Excel / CSV)</button>
+              <button class="btn btn-secondary" onclick="exportWinboxRscScript()">📥 تصدير سكربت Winbox .rsc</button>
+            </div>
+          </div>
+
+          <!-- Saved Batches Archive Table -->
+          <div class="table-card" style="margin-top:1.5rem; padding:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:10px;">
+              <div>
+                <div style="font-size:0.95rem; font-weight:800; color:var(--primary-light);">
+                  🗂️ سجل وأرشيف الدفعات السابقة (Batches Archive)
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-dim); margin-top:2px;">
+                  كافة الدفعات المتولدة مخزنة وموثقة ويمكن إعادة طباعتها أو تصديرها أو مزامنتها مع المايكروتك
+                </div>
+              </div>
+              <button class="btn btn-secondary" style="font-size:0.8rem; padding:4px 12px;" onclick="loadBatchesFromBackend()">
+                🔄 تحديث السجل
+              </button>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>اسم الدفعة والموزع</th>
+                  <th>الباقة</th>
+                  <th>السعر</th>
+                  <th>عدد الكروت</th>
+                  <th>نمط الكود</th>
+                  <th>المزامنة بالراوتر</th>
+                  <th>تاريخ التوليد</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="batchesArchiveTableBody">
+                <tr>
+                  <td colspan="8" style="text-align:center; padding:1.5rem; color:var(--text-dim);">جاري تحميل سجل الدفعات...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+
+        <!-- ================================================================
+             8. REPORTS & BACKUPS VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-reports">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">التقارير</span>
+              </div>
+              <h1 class="view-main-title">📈 التقارير المالية واستهلاك الترافيك</h1>
+            </div>
+          </div>
+
+          <div class="stats-grid-4">
+            <div class="stat-card stat-teal">
+              <div class="stat-content">
+                <span class="stat-label">مبيعات اليوم</span>
+                <span class="stat-number" id="reportsSalesToday">$0</span>
+                <span class="stat-badge badge-neutral">اليوم</span>
+              </div>
+              <div class="stat-icon-wrapper">💵</div>
+            </div>
+            <div class="stat-card stat-purple">
+              <div class="stat-content">
+                <span class="stat-label">البطاقات المباعة</span>
+                <span class="stat-number" id="reportsCardsSold">0</span>
+                <span class="stat-badge badge-neutral">بطاقة</span>
+              </div>
+              <div class="stat-icon-wrapper">🎫</div>
+            </div>
+            <div class="stat-card stat-blue">
+              <div class="stat-content">
+                <span class="stat-label">إجمالي الترافيك الشهري</span>
+                <span class="stat-number" id="reportsTotalTraffic">0 <small style="font-size:1rem;">GB</small></span>
+              </div>
+              <div class="stat-icon-wrapper">🌐</div>
+            </div>
+            <div class="stat-card stat-amber">
+              <div class="stat-content">
+                <span class="stat-label">نسبة المشتركين النشطين</span>
+                <span class="stat-number" id="reportsActiveUserRatio">0%</span>
+              </div>
+              <div class="stat-icon-wrapper">🔄</div>
+            </div>
+          </div>
+
+          <!-- Reports Charts & Package Sales Breakdown -->
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:1.25rem; margin-top:1.25rem;">
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">📊 توزيع المبيعات حسب باقات الإنترنت</div>
+              </div>
+              <div class="table-card" style="padding:0.75rem; background:transparent; border:none; box-shadow:none;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>الباقة</th>
+                      <th>السعر</th>
+                      <th>الكروت المباعة</th>
+                      <th>إجمالي العائد</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportsPackageSalesBody">
+                    <tr>
+                      <td colspan="4" style="text-align:center; padding:1.5rem; color:var(--text-dim);">لا توجد بيانات مبيعات مسجلة</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">📡 استهلاك الفايبر والباندويث الأسبوعي</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:0.75rem; padding:0.5rem 0;" id="reportsWeeklyBandwidthList">
+                <div style="text-align:center; padding:2rem 1rem; color:var(--text-dim); font-size:0.85rem;">
+                  لا توجد سجلات استهلاك باندويث أسبوعية بعد
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             9. ALERTS & LOGS VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-alerts">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">الإشعارات</span>
+              </div>
+              <h1 class="view-main-title">🔔 سجل التنبيهات وإشعارات المايكروتك</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-secondary" onclick="clearAllAlerts()">مسح جميع التنبيهات</button>
+              <button class="btn btn-primary" onclick="syncRouterDataLive()">🔄 فحص وتحديث التنبيهات</button>
+            </div>
+          </div>
+
+          <div class="table-card" style="padding:1rem;">
+            <div class="alerts-list-group" id="alertsContainerList">
+              <!-- Populated dynamically by script.js -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             10. SETTINGS & MULTI-ROUTER VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-settings">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">الإعدادات</span>
+              </div>
+              <h1 class="view-main-title">⚙️ إعدادات النظام وقواعد البيانات</h1>
+            </div>
+          </div>
+
+          <!-- System Settings Grid -->
+          <div class="dashboard-grid-equal-2">
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">💾 النسخ الاحتياطي واستعادة البيانات</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:0.85rem;">
+                <p style="font-size:0.85rem; color:var(--text-muted);">
+                  يمكنك تحميل نسخة احتياطية كاملة من قاعدة بيانات المشتركين والباقات والكروت بصيغة JSON، أو تصدير سكربت Winbox جاهز للحقن المباشر في المايكروتك.
+                </p>
+                <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                  <button class="btn btn-primary" onclick="exportDatabaseBackupJson()">تصدير JSON Backup</button>
+                  <button class="btn btn-secondary" onclick="exportWinboxRscScript()">تصدير Winbox .rsc</button>
+                  <label class="btn btn-secondary" style="cursor:pointer; margin:0;">
+                    📥 استعادة من JSON
+                    <input type="file" id="backupJsonFileInput" accept=".json" style="display:none;" onchange="importDatabaseBackupJson(event)" />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">📡 معلومات اتصال المايكروتك النشط</div>
+              </div>
+              <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:0.4rem;">
+                <div>الجهاز: <strong>CCR2004-1G-12S+2XS</strong></div>
+                <div>الإصدار: <strong>RouterOS v7.14.3</strong></div>
+                <div>REST API Endpoint: <code class="font-mono">https://192.168.88.1:443/rest</code></div>
+                <div>وقت التشغيل Uptime: <strong style="color:var(--accent-emerald);">42d 18h 35m</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               TELEGRAM BOT NOTIFICATION & AUTO-ALERTS INTEGRATION
+               ================================================================ -->
+          <div class="dashboard-card telegram-card">
+            <div class="dashboard-card-header" style="flex-wrap:wrap; gap:0.75rem;">
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                <div style="font-size:1.5rem;">✈️</div>
+                <div>
+                  <div class="card-title" style="font-size:1.1rem; color:#ffffff;">ربط تنبيهات Telegram Bot الفورية</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">إرسال إشعارات فورية وتلقائية لهاتفك أو قروب الإدارة عند انقطاع الراوترات أو وصول الاستهلاك للمستويات الحرجة</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span class="telegram-badge" id="tgConnectionBadge">
+                  <span class="status-dot"></span>
+                  <span id="tgConnectionStatusText">جاهز للإرسال</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Telegram Credentials Form -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-top:1rem;">
+              <div class="form-group">
+                <label class="form-label" style="display:flex; justify-content:space-between;">
+                  <span>توكن البوت (Bot Token)</span>
+                  <span style="font-size:0.72rem; color:var(--text-dim);">من @BotFather</span>
+                </label>
+                <div style="position:relative; display:flex; align-items:center;">
+                  <input type="password" class="form-control" id="tgBotTokenInput" placeholder="مثال: 7123456789:AAHk..." style="width:100%; padding-inline-end:2.5rem; font-family:'JetBrains Mono';" />
+                  <button type="button" class="btn btn-icon" style="position:absolute; inset-inline-end:6px; width:28px; height:28px;" onclick="togglePasswordVisibility('tgBotTokenInput', true)" title="إظهار / إخفاء التوكن">👁️</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" style="display:flex; justify-content:space-between;">
+                  <span>معرف المحادثة أو القناة (Chat ID / Channel)</span>
+                  <span style="font-size:0.72rem; color:var(--text-dim);">من @userinfobot أو ID القناة</span>
+                </label>
+                <input type="text" class="form-control" id="tgChatIdInput" placeholder="مثال: -100192837465 أو 123456789" style="font-family:'JetBrains Mono';" />
+              </div>
+            </div>
+
+            <!-- Automated Alert Triggers Toggles -->
+            <div style="margin-top:1.25rem;">
+              <div style="font-size:0.85rem; font-weight:700; color:var(--text-main); margin-bottom:0.75rem;">🔔 شروط الإشعارات التلقائية (Automated Triggers)</div>
+              
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:0.75rem;">
+                <div class="telegram-toggle-row">
+                  <div class="telegram-toggle-label">
+                    <span class="telegram-toggle-title">🔌 انقطاع الراوتر عن الشبكة (Router Down)</span>
+                    <span class="telegram-toggle-desc">إشعار فوري عند فقدان الاتصال بالمايكروتك أو هبوط REST API</span>
+                  </div>
+                  <label class="tg-checkbox-switch">
+                    <input type="checkbox" id="tgAlertRouterDown" checked />
+                    <span class="tg-slider"></span>
+                  </label>
+                </div>
+
+                <div class="telegram-toggle-row">
+                  <div class="telegram-toggle-label">
+                    <span class="telegram-toggle-title">⚠️ استهلاك حرج للموارد (CPU &gt; 85% / High Traffic)</span>
+                    <span class="telegram-toggle-desc">تنبيه عند ارتفاع الضغط على المعالج أو استنزاف باندويث الخط</span>
+                  </div>
+                  <label class="tg-checkbox-switch">
+                    <input type="checkbox" id="tgAlertHighLoad" checked />
+                    <span class="tg-slider"></span>
+                  </label>
+                </div>
+
+                <div class="telegram-toggle-row">
+                  <div class="telegram-toggle-label">
+                    <span class="telegram-toggle-title">⏳ اقتراب انتهاء اشتراكات المشتركين</span>
+                    <span class="telegram-toggle-desc">تقرير تلقائي يومي ببطاقات الهوتسبوت المنتهية خلال 24 ساعة</span>
+                  </div>
+                  <label class="tg-checkbox-switch">
+                    <input type="checkbox" id="tgAlertUserExpiry" checked />
+                    <span class="tg-slider"></span>
+                  </label>
+                </div>
+
+                <div class="telegram-toggle-row">
+                  <div class="telegram-toggle-label">
+                    <span class="telegram-toggle-title">🚨 محاولات تسجيل دخول مشبوهة (Brute Force)</span>
+                    <span class="telegram-toggle-desc">تنبيه عند تكرار فشل تسجيل الدخول على منفذ إدارة الراوتر</span>
+                  </div>
+                  <label class="tg-checkbox-switch">
+                    <input type="checkbox" id="tgAlertSecurity" checked />
+                    <span class="tg-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons & Logs -->
+            <div style="margin-top:1.25rem; display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:space-between; align-items:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
+                <button class="btn btn-primary" onclick="saveTelegramSettings()">
+                  <span>💾</span> <span>حفظ إعدادات تيليجرام</span>
+                </button>
+                <button class="btn btn-secondary" onclick="sendTestTelegramAlert()">
+                  <span>🚀</span> <span>إرسال تنبيه تجريبي الآن</span>
+                </button>
+              </div>
+              <div style="font-size:0.75rem; color:var(--text-dim);">
+                يدعم الإرسال عبر Telegram Bot API v7.0 الرسمي
+              </div>
+            </div>
+
+            <!-- Telegram Live Dispatch Console -->
+            <div style="margin-top:1rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-bottom:0.35rem;">
+                <span>سجل إرسال التنبيهات لتيليجرام (Telegram Dispatch Log):</span>
+                <span id="tgLastLogTimestamp">لا توجد إرساليات بعد</span>
+              </div>
+              <div class="tg-log-console" id="tgLogConsole">
+                <div class="log-info">[System] نظام إرسال تنبيهات Telegram Bot جاهز ومهيأ للعمل الفوري.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             11. TERMINAL & CLI VIEW (RouterOS v7 Web CLI Console)
+             ================================================================ -->
+        <section class="view-panel" id="view-terminal">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">موجه الأوامر (Terminal)</span>
+              </div>
+              <h1 class="view-main-title">💻 موجه أوامر مايكروتك (MikroTik CLI Console)</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-secondary" onclick="clearTerminalOutput()">🧹 مسح الشاشة</button>
+              <button class="btn btn-primary" onclick="copyTerminalOutput()">📋 نسخ المخرجات</button>
+            </div>
+          </div>
+
+          <!-- Quick Command Presets Bar -->
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; align-items:center;">
+            <span style="font-size:0.8rem; font-weight:700; color:var(--text-dim);">أوامر سريعة:</span>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/system resource print')">/system resource print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/ip hotspot user print')">/ip hotspot user print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/ppp secret print')">/ppp secret print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/interface print')">/interface print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/log print')">/log print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/ping 8.8.8.8')">/ping 8.8.8.8</button>
+          </div>
+
+          <!-- Terminal Window Container -->
+          <div class="terminal-container" style="background:#090d16; border:1px solid #1e293b; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 10px 25px rgba(0,0,0,0.5);">
+            <!-- Terminal Header -->
+            <div style="background:#0f172a; padding:10px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:12px; height:12px; border-radius:50%; background:#ef4444;"></div>
+                <div style="width:12px; height:12px; border-radius:50%; background:#f59e0b;"></div>
+                <div style="width:12px; height:12px; border-radius:50%; background:#10b981;"></div>
+                <span style="font-family:'JetBrains Mono', monospace; font-size:0.8rem; color:#94a3b8; margin-inline-start:10px;" id="terminalHeaderTitle">[admin@CCR2004] > Terminal Console</span>
+              </div>
+              <span class="badge-status-pill badge-status-online" style="font-size:0.72rem;">RouterOS v7.14</span>
+            </div>
+
+            <!-- Terminal Output Area -->
+            <div id="terminalOutputBody" style="min-height:360px; max-height:480px; overflow-y:auto; padding:1rem; font-family:'JetBrains Mono', monospace; font-size:0.85rem; line-height:1.6; color:#f8fafc; direction:ltr; text-align:left; background:rgba(0,0,0,0.4);">
+              <div style="color:#38bdf8;">MikroTik RouterOS 7.14.3 (c) 1999-2024 http://www.mikrotik.com/</div>
+              <div style="color:#64748b; margin-bottom:10px;">Type any RouterOS command or select from quick presets above.</div>
+            </div>
+
+            <!-- Terminal Prompt Input Form -->
+            <form id="terminalInputForm" onsubmit="handleTerminalSubmit(event)" style="display:flex; align-items:center; background:#0b1120; padding:10px 14px; border-top:1px solid #1e293b; direction:ltr;">
+              <span style="color:#10b981; font-family:'JetBrains Mono', monospace; font-weight:700; margin-right:8px;" id="terminalPromptPrefix">[admin@CCR2004] &gt;</span>
+              <input type="text" id="terminalCmdInput" autocomplete="off" spellcheck="false" placeholder="e.g. /system resource print" style="flex:1; background:transparent; border:none; color:#f8fafc; font-family:'JetBrains Mono', monospace; font-size:0.9rem; outline:none;" />
+              <button type="submit" class="btn btn-primary" style="padding:4px 14px; font-size:0.8rem;">تنفيذ ↵</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             12. DHCP LEASES VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-dhcp">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">توزيع العناوين (DHCP)</span>
+              </div>
+              <h1 class="view-main-title">🔌 سجل توزيع عناوين الشبكة (DHCP Leases)</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-secondary" onclick="fetchLiveDhcpLeases()">🔄 تحديث القائمة</button>
+              <button class="btn btn-primary" onclick="openAddDhcpModal()">+ إضافة حجز IP ثابت (Static)</button>
+            </div>
+          </div>
+
+          <!-- DHCP Search & Filter Toolbar -->
+          <div class="table-toolbar" style="margin-bottom:1rem;">
+            <div class="search-input-box" style="flex:1; max-width:320px;">
+              <span>🔍</span>
+              <input type="text" id="dhcpSearchInput" placeholder="بحث بعنوان IP أو MAC أو اسم الجهاز..." oninput="filterDhcpTable()" />
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <select class="form-control" id="dhcpStatusFilter" onchange="filterDhcpTable()" style="width:160px;">
+                <option value="all">جميع الحالات</option>
+                <option value="bound">نشط (Bound)</option>
+                <option value="static">حجز ثابت (Static)</option>
+                <option value="dynamic">ديناميكي (Dynamic)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>عنوان IP</th>
+                  <th>الماك أدرس (MAC Address)</th>
+                  <th>اسم الجهاز (Host Name)</th>
+                  <th>خادم DHCP</th>
+                  <th>النوع</th>
+                  <th>الحالة</th>
+                  <th>مدة الحجز المتبقية</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="dhcpTableBody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             12b. CONNECTED NETWORK DEVICES & IP NEIGHBORS (MNDP / IP HOTSPOT HOST)
+             ================================================================ -->
+        <section class="view-panel" id="view-neighbors">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">الأجهزة المتصلة (Neighbors & Hosts)</span>
+              </div>
+              <h1 class="view-main-title">📡 الأجهزة المتصلة بالشبكة (IP Hotspot & Neighbor Discovery)</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-secondary" onclick="fetchLiveNeighborsData()" title="جلب وفحص الأجهزة المجاورة المتصلة حالياً من الراوتر">🔄 تحديث واستكشاف الأجهزة</button>
+              <button class="btn btn-primary" onclick="openDirectDeviceIpModal()" title="فتح نافذة سريعة للوصول إلى لوحة تحكم أي جهاز بالشبكة عبر عنوان IP">🌐 فتح لوحة تحكم جهاز عبر IP</button>
+            </div>
+          </div>
+
+          <!-- Neighbor Stats Summary Cards -->
+          <div class="stats-overview-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 1.25rem;">
+            <div class="stat-card" style="border-right: 4px solid var(--accent-teal);">
+              <div class="stat-icon" style="background: rgba(13, 148, 136, 0.15); color: var(--accent-teal);">📡</div>
+              <div class="stat-content">
+                <span class="stat-label">أجهزة الجوار المكتشفة (Neighbors)</span>
+                <span class="stat-value" id="neighborsCountBadge">0</span>
+                <span style="font-size:0.75rem; color:var(--text-dim);">MikroTik MNDP / CDP / LLDP</span>
+              </div>
+            </div>
+            <div class="stat-card" style="border-right: 4px solid var(--primary);">
+              <div class="stat-icon" style="background: rgba(59, 130, 246, 0.15); color: var(--primary);">📱</div>
+              <div class="stat-content">
+                <span class="stat-label">أجهزة الهوتسبوت النشطة (Hosts)</span>
+                <span class="stat-value" id="hotspotHostsCountBadge">0</span>
+                <span style="font-size:0.75rem; color:var(--text-dim);">IP Hotspot Host Table</span>
+              </div>
+            </div>
+            <div class="stat-card" style="border-right: 4px solid var(--accent-emerald);">
+              <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">🟢</div>
+              <div class="stat-content">
+                <span class="stat-label">أجهزة مصرح لها (Authorized)</span>
+                <span class="stat-value" id="neighborsAuthorizedCount">0</span>
+                <span style="font-size:0.75rem; color:var(--accent-emerald);">متصلة ومسجلة الدخول</span>
+              </div>
+            </div>
+            <div class="stat-card" style="border-right: 4px solid var(--accent-amber);">
+              <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">⚙️</div>
+              <div class="stat-content">
+                <span class="stat-label">القطع اللاسلكية والراوترات (AP/CPE)</span>
+                <span class="stat-value" id="neighborsEquipmentCount">0</span>
+                <span style="font-size:0.75rem; color:var(--text-dim);">سكتورات / نانو / أكسسات</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs Switcher: Neighbors Discovery vs Hotspot Hosts -->
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-primary" id="tabBtnNeighbors" onclick="switchNeighborsSubTab('neighbors')" style="padding:7px 16px; font-size:0.85rem;">
+                <span>📡 أجهزة الجوار المكتشفة (IP Neighbor)</span>
+                <span class="badge-profile" id="tabBadgeNeighbors" style="margin-right:6px; background:rgba(255,255,255,0.2);">0</span>
+              </button>
+              <button class="btn btn-secondary" id="tabBtnHotspotHosts" onclick="switchNeighborsSubTab('hosts')" style="padding:7px 16px; font-size:0.85rem;">
+                <span>📱 أجهزة الهوتسبوت المتصلة (Hotspot Hosts)</span>
+                <span class="badge-profile" id="tabBadgeHosts" style="margin-right:6px;">0</span>
+              </button>
+            </div>
+
+            <!-- Quick Action Help Note -->
+            <div style="font-size:0.8rem; color:var(--text-dim); display:flex; align-items:center; gap:6px;">
+              <span>💡 انقر على زر <strong>"فتح لوحة التحكم 🔗"</strong> لفتح إعدادات القطعة في المتصفح أو <strong>"نسخ IP 📋"</strong></span>
+            </div>
+          </div>
+
+          <!-- Neighbors Discovery Table Tab -->
+          <div id="neighborsSectionContent">
+            <div class="table-toolbar" style="margin-bottom:1rem;">
+              <div class="search-input-box" style="flex:1; max-width:340px;">
+                <span>🔍</span>
+                <input type="text" id="neighborSearchInput" placeholder="بحث باسم الجهاز، IP، الماك، أو المنفذ..." oninput="renderNeighborsTable()" />
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <select class="form-control" id="neighborPlatformFilter" onchange="renderNeighborsTable()" style="width:180px;">
+                  <option value="all">جميع الأنظمة والمنصات</option>
+                  <option value="MikroTik">MikroTik RouterOS</option>
+                  <option value="Ubiquiti">Ubiquiti airOS / UniFi</option>
+                  <option value="Huawei">Huawei / OLT</option>
+                  <option value="TP-Link">TP-Link / Other</option>
+                </select>
+                <select class="form-control" id="neighborInterfaceFilter" onchange="renderNeighborsTable()" style="width:150px;">
+                  <option value="all">جميع المنافذ</option>
+                  <!-- Populated dynamically based on found interfaces -->
+                </select>
+              </div>
+            </div>
+
+            <div class="table-card">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>اسم القطعة / الجهاز (Identity)</th>
+                      <th>عنوان IP</th>
+                      <th>الماك أدرس (MAC Address)</th>
+                      <th>منفذ الراوتر (Interface)</th>
+                      <th>المنصة / الموديل (Platform & Board)</th>
+                      <th>الإصدار ومدة التشغيل (Uptime)</th>
+                      <th style="text-align:center;">إجراءات الفتح والنسخ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="neighborsTableBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hotspot Hosts Table Tab -->
+          <div id="hotspotHostsSectionContent" style="display:none;">
+            <div class="table-toolbar" style="margin-bottom:1rem;">
+              <div class="search-input-box" style="flex:1; max-width:340px;">
+                <span>🔍</span>
+                <input type="text" id="hotspotHostSearchInput" placeholder="بحث بعنوان IP، الماك، أو الوصف..." oninput="renderHotspotHostsTable()" />
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <select class="form-control" id="hotspotHostAuthFilter" onchange="renderHotspotHostsTable()" style="width:170px;">
+                  <option value="all">جميع الحالات</option>
+                  <option value="authorized">مصرح (Authorized)</option>
+                  <option value="unauthorized">بانتظار الدخول (Pending)</option>
+                  <option value="bypassed">مستثنى (Bypassed / IP Binding)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-card">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>عنوان IP الموزع</th>
+                      <th>الماك أدرس (MAC Address)</th>
+                      <th>الجسر / السيرفر</th>
+                      <th>حالة الدخول</th>
+                      <th>استهلاك البيانات (RX / TX)</th>
+                      <th>وصف الجهاز (Comment)</th>
+                      <th style="text-align:center;">إجراءات الفتح والنسخ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="hotspotHostsTableBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             13. NETWORK DIAGNOSTICS & PING VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-diagnostics">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">أدوات الفحص والتشخيص</span>
+              </div>
+              <h1 class="view-main-title">🎯 أدوات فحص الاتصال والبنق (Network Diagnostics)</h1>
+            </div>
+          </div>
+
+          <div class="dashboard-grid-equal-2" style="margin-bottom:1.5rem;">
+            <!-- Ping Tool Box -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">📡 فحص زمن الاستجابة (MikroTik Ping Tool)</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:1rem;">
+                <div style="display:flex; gap:0.5rem;">
+                  <input type="text" class="form-control" id="pingTargetIpInput" placeholder="IP أو Domain (مثال: 8.8.8.8 أو google.com)" value="8.8.8.8" style="flex:1; font-family:'JetBrains Mono';" />
+                  <select class="form-control" id="pingCountSelect" style="width:90px;">
+                    <option value="4">4 حزم</option>
+                    <option value="8">8 حزم</option>
+                    <option value="12">12 حزمة</option>
+                  </select>
+                  <button class="btn btn-primary" onclick="runPingDiagnostic()">🚀 فحص البنق</button>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0.5rem; text-align:center;">
+                  <div style="background:var(--bg-input); padding:0.6rem; border-radius:8px; border:1px solid var(--border-light);">
+                    <div style="font-size:0.72rem; color:var(--text-dim);">أقل زمن (Min)</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:var(--accent-emerald);" id="pingMinVal">--</div>
+                  </div>
+                  <div style="background:var(--bg-input); padding:0.6rem; border-radius:8px; border:1px solid var(--border-light);">
+                    <div style="font-size:0.72rem; color:var(--text-dim);">المتوسط (Avg)</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:var(--primary);" id="pingAvgVal">--</div>
+                  </div>
+                  <div style="background:var(--bg-input); padding:0.6rem; border-radius:8px; border:1px solid var(--border-light);">
+                    <div style="font-size:0.72rem; color:var(--text-dim);">فقد الحزم (Loss)</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:var(--secondary);" id="pingLossVal">--</div>
+                  </div>
+                </div>
+
+                <div class="ping-results-console" id="pingConsoleOutput" style="background:#090d16; border:1px solid #1e293b; border-radius:8px; padding:0.75rem; font-family:'JetBrains Mono', monospace; font-size:0.8rem; min-height:160px; max-height:220px; overflow-y:auto; color:#f8fafc; direction:ltr; text-align:left;">
+                  <div style="color:#64748b;">Ready. Enter target IP or domain and press Run Ping.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DNS & Speed Diagnostics -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title">🌐 فحص بوابات وخوادم DNS العالمية</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-input); padding:0.6rem 0.85rem; border-radius:8px;">
+                  <div>
+                    <div style="font-weight:700; font-size:0.85rem;">Google Public DNS (8.8.8.8)</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);">Primary Global Resolver</div>
+                  </div>
+                  <span class="badge-status-pill badge-status-online" id="dnsStatusGoogle">16ms (ممتاز)</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-input); padding:0.6rem 0.85rem; border-radius:8px;">
+                  <div>
+                    <div style="font-weight:700; font-size:0.85rem;">Cloudflare DNS (1.1.1.1)</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);">Ultra-low latency</div>
+                  </div>
+                  <span class="badge-status-pill badge-status-online" id="dnsStatusCloudflare">12ms (ممتاز)</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-input); padding:0.6rem 0.85rem; border-radius:8px;">
+                  <div>
+                    <div style="font-weight:700; font-size:0.85rem;">Gateway Default Route (0.0.0.0/0)</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);">WAN sfp-plus1 Gateway</div>
+                  </div>
+                  <span class="badge-status-pill badge-status-online">متصل (Reachable)</span>
+                </div>
+                <button class="btn btn-secondary" style="margin-top:auto;" onclick="showToast('تم فحص جميع البوابات والـ DNS بنجاح، الخدمة ممتازة', 'success')">🔄 إعادة فحص جميع البوابات</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             14. SYSTEM LOGS VIEW
+             ================================================================ -->
+        <section class="view-panel" id="view-logs">
+          <div class="view-header">
+            <div class="view-title-group">
+              <div class="breadcrumb-trail">
+                <span>الرئيسية</span> / <span class="active">سجلات الراوتر (Logs)</span>
+              </div>
+              <h1 class="view-main-title">📜 سجل أحداث نظام المايكروتك (System Logs)</h1>
+            </div>
+            <div class="view-actions-bar">
+              <button class="btn btn-secondary" onclick="fetchMikroTikLogs()">🔄 تحديث السجل</button>
+              <button class="btn btn-primary" onclick="exportLogsToFile()">📥 تحميل السجل (.txt)</button>
+            </div>
+          </div>
+
+          <!-- Logs Toolbar -->
+          <div class="table-toolbar" style="margin-bottom:1rem;">
+            <div class="search-input-box" style="flex:1; max-width:340px;">
+              <span>🔍</span>
+              <input type="text" id="logsSearchInput" placeholder="بحث في السجلات..." oninput="filterLogsTable()" />
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <select class="form-control" id="logsTopicFilter" onchange="filterLogsTable()" style="width:160px;">
+                <option value="all">جميع التصنيفات</option>
+                <option value="system">System</option>
+                <option value="hotspot">Hotspot</option>
+                <option value="pppoe">PPPoE / PPP</option>
+                <option value="dhcp">DHCP</option>
+                <option value="warning">تحذيرات (Warning)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:120px;">الوقت</th>
+                  <th style="width:160px;">التصنيف (Topic)</th>
+                  <th>تفاصيل الرسالة (Message)</th>
+                  <th style="width:100px;">المستوى</th>
+                </tr>
+              </thead>
+              <tbody id="logsTableBody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ====================================================================
+         USER DETAILS DRAWER / MODAL (Quadrant 3 in Screenshot)
+         ==================================================================== -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeUserDrawer()"></div>
+    <div class="user-drawer" id="userDetailsDrawer">
+      <!-- Drawer Header -->
+      <div class="drawer-header">
+        <div class="drawer-title-row">
+          <span class="status-dot"></span>
+          <span>تفاصيل المستخدم: <strong id="drawerUsernameHeader">ahmed</strong></span>
+        </div>
+        <button class="drawer-close-btn" onclick="closeUserDrawer()">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- User Hero Card with Avatar & QR Code -->
+        <div class="user-hero-card">
+          <div class="user-hero-left">
+            <div class="user-hero-avatar" id="drawerHeroAvatar">A</div>
+            <div class="user-hero-meta">
+              <div class="user-hero-name" id="drawerHeroName">ahmed</div>
+              <div style="font-size:0.75rem; color:var(--text-dim);">مستخدم هوتسبوت</div>
+              <div>
+                <span class="badge-status-pill badge-status-online" id="drawerHeroStatus">متصل الآن</span>
+              </div>
+            </div>
+          </div>
+          <div class="user-qr-box" id="drawerQrCanvasBox">
+            <!-- Rendered QR -->
+          </div>
+        </div>
+
+        <!-- Drawer 4 Tabs -->
+        <div class="drawer-tabs-nav">
+          <button class="drawer-tab-btn active" id="drawerTabBtn-stats" onclick="switchDrawerTab('stats')">الإحصائيات</button>
+          <button class="drawer-tab-btn" id="drawerTabBtn-history" onclick="switchDrawerTab('history')">سجل الاتصال</button>
+          <button class="drawer-tab-btn" id="drawerTabBtn-sessions" onclick="switchDrawerTab('sessions')">الجلسات</button>
+          <button class="drawer-tab-btn" id="drawerTabBtn-finance" onclick="switchDrawerTab('finance')">السجل المالي</button>
+        </div>
+
+        <!-- Tab 1: Stats & Info -->
+        <div id="drawerTabPane-stats" class="drawer-tab-pane active">
+          <!-- 4 KPI Mini Cards -->
+          <div class="mini-stats-row">
+            <div class="mini-stat-card">
+              <div class="mini-stat-label">إجمالي التحميل</div>
+              <div class="mini-stat-val" style="color:var(--secondary);" id="drawerDlTotal">12.5 GB</div>
+            </div>
+            <div class="mini-stat-card">
+              <div class="mini-stat-label">إجمالي الرفع</div>
+              <div class="mini-stat-val" style="color:var(--accent-emerald);" id="drawerUlTotal">3.1 GB</div>
+            </div>
+            <div class="mini-stat-card">
+              <div class="mini-stat-label">إجمالي الاستهلاك</div>
+              <div class="mini-stat-val" style="color:var(--accent-purple);" id="drawerTotalUsed">15.6 GB</div>
+            </div>
+            <div class="mini-stat-card">
+              <div class="mini-stat-label">مدة الاتصال</div>
+              <div class="mini-stat-val" id="drawerUptime">8:45:22</div>
+            </div>
+          </div>
+
+          <!-- User Information Grid -->
+          <div class="drawer-info-grid">
+            <div class="info-item">
+              <span class="info-label">المستخدم</span>
+              <span class="info-value" id="drawerInfoUsername">ahmed</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">كلمة المرور</span>
+              <span class="info-value" style="display:flex; align-items:center; gap:0.4rem;">
+                <span id="drawerInfoPassword">••••••••</span>
+                <button class="btn btn-icon" style="width:22px; height:22px;" onclick="togglePasswordVisibility('drawerInfoPassword')">👁️</button>
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">الباقة</span>
+              <span class="info-value" id="drawerInfoProfile">30GB</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">عنوان IP</span>
+              <span class="info-value" id="drawerInfoIp">10.0.0.15</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">عنوان MAC</span>
+              <span class="info-value" id="drawerInfoMac">AA:BB:CC:DD:EE:FF</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">تاريخ الإنشاء</span>
+              <span class="info-value" id="drawerInfoCreated">2026-08-10 10:20</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">تاريخ الإنتهاء</span>
+              <span class="info-value" style="color:var(--accent-emerald);" id="drawerInfoExpires">2026-09-10 (متبقي 25 يوم)</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">حالة المستخدم</span>
+              <span class="info-value" style="color:var(--accent-emerald);" id="drawerInfoStatusText">نشط</span>
+            </div>
+          </div>
+
+          <!-- 7-Day Usage Chart -->
+          <div class="dashboard-card" style="padding:0.85rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span style="font-size:0.85rem; font-weight:700;">الاستهلاك خلال آخر 7 أيام</span>
+              <div style="display:flex; gap:0.3rem;">
+                <button class="btn btn-secondary" style="padding:0.2rem 0.5rem; font-size:0.7rem;">يومي</button>
+                <button class="btn btn-secondary" style="padding:0.2rem 0.5rem; font-size:0.7rem;">أسبوعي</button>
+                <button class="btn btn-primary" style="padding:0.2rem 0.5rem; font-size:0.7rem;">شهري</button>
+              </div>
+            </div>
+            <div style="height:140px;">
+              <canvas id="drawerWeeklyCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Device & Connection Meta Chips -->
+          <div class="meta-footer-chips">
+            <div>
+              <div style="color:var(--text-dim); font-size:0.7rem;">نوع الجهاز</div>
+              <strong id="drawerMetaDevice">Android 14</strong>
+            </div>
+            <div>
+              <div style="color:var(--text-dim); font-size:0.7rem;">سرعة الاتصال</div>
+              <strong id="drawerMetaSpeed">25 Mbps / 10 Mbps</strong>
+            </div>
+            <div>
+              <div style="color:var(--text-dim); font-size:0.7rem;">آخر اتصال</div>
+              <strong>15/08/2026 09:45</strong>
+            </div>
+            <div>
+              <div style="color:var(--text-dim); font-size:0.7rem;">عدد مرات الاتصال</div>
+              <strong>24 مرة</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Connection History -->
+        <div id="drawerTabPane-history" class="drawer-tab-pane" style="display:none;">
+          <div class="table-card" style="margin-top:0.5rem; border:1px solid var(--border-light); box-shadow:none;">
+            <div style="padding:0.6rem 0.85rem; font-weight:700; font-size:0.85rem; border-bottom:1px solid var(--border-color);">سجل عمليات تسجيل الدخول والاتصال</div>
+            <div class="table-responsive">
+              <table class="data-table" style="font-size:0.8rem;">
+                <thead>
+                  <tr>
+                    <th>الوقت والتاريخ</th>
+                    <th>نوع الإجراء</th>
+                    <th>عنوان IP</th>
+                    <th>المدة</th>
+                  </tr>
+                </thead>
+                <tbody id="drawerHistoryTableBody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Active & Past Sessions -->
+        <div id="drawerTabPane-sessions" class="drawer-tab-pane" style="display:none;">
+          <div style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.5rem;" id="drawerSessionsList">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab 4: Financial Records -->
+        <div id="drawerTabPane-finance" class="drawer-tab-pane" style="display:none;">
+          <div class="table-card" style="margin-top:0.5rem; border:1px solid var(--border-light); box-shadow:none;">
+            <div style="padding:0.6rem 0.85rem; font-weight:700; font-size:0.85rem; border-bottom:1px solid var(--border-color);">سجل الفواتير وعمليات التجديد</div>
+            <div class="table-responsive">
+              <table class="data-table" style="font-size:0.8rem;">
+                <thead>
+                  <tr>
+                    <th>رقم العملية</th>
+                    <th>التاريخ</th>
+                    <th>الباقة</th>
+                    <th>المبلغ</th>
+                    <th>طريقة الدفع</th>
+                  </tr>
+                </thead>
+                <tbody id="drawerFinanceTableBody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drawer Action Buttons -->
+      <div class="drawer-actions-footer">
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-success" id="drawerRenewBtn" onclick="renewUserFromDrawer()">تجديد (+30 يوم)</button>
+          <button class="btn btn-warning" id="drawerToggleStatusBtn" onclick="toggleUserFromDrawer()">تعطيل</button>
+          <button class="btn btn-danger" onclick="deleteUserFromDrawer()">حذف</button>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-primary" onclick="printSingleCard(AppState.selectedUserForDrawer ? AppState.selectedUserForDrawer.id : 'hs-1')">طباعة الكرت</button>
+          <button class="btn btn-secondary" onclick="closeUserDrawer()">إغلاق</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         MODALS
+         ==================================================================== -->
+
+    <!-- Add Hotspot User Modal -->
+    <div class="modal-backdrop" id="addUserModal">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div class="modal-title">➕ إضافة مستخدم هوتسبوت جديد</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">اسم المستخدم</label>
+              <input type="text" class="form-control" id="newUsername" placeholder="مثال: ahmed_user" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">كلمة المرور</label>
+              <input type="text" class="form-control" id="newPassword" placeholder="مثال: 849201" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">الباقة (Profile)</label>
+              <select class="form-control" id="newUserProfile">
+                <option value="30GB">30GB Super Speed</option>
+                <option value="50GB">50GB Ultra Gold</option>
+                <option value="100GB">100GB Max Turbo</option>
+                <option value="Unlimited">Unlimited VIP Fiber</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">عنوان IP مخصص (اختياري)</label>
+              <input type="text" class="form-control" id="newUserIp" placeholder="10.0.0.x" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAllModals()">إلغاء</button>
+          <button class="btn btn-primary" onclick="saveNewUserFromModal()">حفظ وإرسال للراوتر</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Remote Router IP Launcher Modal -->
+    <div class="modal-backdrop" id="remoteIpModal">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div class="modal-title" id="remoteIpTitle">🌐 راوتر العميل (Remote IP)</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body" style="text-align:center;">
+          <p style="font-size:0.9rem; color:var(--text-muted);">
+            عنوان الوصول المباشر لجهاز أو راوتر العميل:
+          </p>
+          <div id="remoteIpAddressDisplay" style="font-size:1.4rem; font-weight:900; color:var(--primary-light); font-family:'JetBrains Mono'; margin:1rem 0; padding:0.75rem; background:var(--bg-input); border-radius:var(--radius-md);">
+            http://192.168.1.101
+          </div>
+          <div style="display:flex; justify-content:center; gap:0.65rem;">
+            <button class="btn btn-primary" id="remoteIpOpenBtn">🌐 فتح في علامة تبويب جديدة</button>
+            <button class="btn btn-secondary" onclick="showToast('تم فحص استجابة الـ Ping: 2ms (ممتاز)', 'success')">📡 فحص Ping</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAllModals()">إغلاق</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-Router Manager Modal -->
+    <div class="modal-backdrop" id="routerManagerModal">
+      <div class="modal-window" style="width:680px;">
+        <div class="modal-header">
+          <div class="modal-title">⚡ إدارة أجهزة MikroTik والاتصال المباشر (RouterOS v7)</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="background:var(--bg-input); border:1px solid var(--border-light); border-radius:8px; padding:0.75rem; margin-bottom:1rem;">
+            <div style="font-size:0.85rem; font-weight:700; color:var(--primary); margin-bottom:4px;">💡 تفعيل خدمة REST API في سيرفر مايكروتك:</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">لتوصيل الراوتربورد مباشرة، افتح Winbox Terminal ونفّذ الأمر التالي:</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:6px 10px; border-radius:6px; font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:#38bdf8;">
+              <code>/ip service set www-ssl port=443 disabled=no</code>
+              <button class="btn btn-secondary" style="padding:2px 8px; font-size:0.72rem;" onclick="navigator.clipboard.writeText('/ip service set www-ssl port=443 disabled=no'); showToast('تم نسخ الأمر إلى الحافظة!', 'info');">نسخ 📋</button>
+            </div>
+          </div>
+
+          <div id="routersModalList">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between;">
+          <button class="btn btn-success" onclick="syncRouterDataLive()">🔄 مزامنة جميع البيانات الآن</button>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-secondary" onclick="closeAllModals()">إغلاق</button>
+            <button class="btn btn-primary" onclick="openAddRouterModal()">+ إضافة راوتر جديد</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Manager Profile Modal (Add & Edit) -->
+    <div class="modal-backdrop" id="profileModal">
+      <div class="modal-window" style="width:540px;">
+        <div class="modal-header">
+          <div class="modal-title" id="profileModalTitle">⚡ باقة User Manager</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="profileEditId" value="" />
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">اسم الباقة</label>
+              <input type="text" class="form-control" id="profModalName" placeholder="مثال: 50GB Ultra Gold" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">السعر ($ أو ر.س)</label>
+              <input type="number" class="form-control" id="profModalPrice" placeholder="مثال: 25" min="0" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">سرعة التحميل (Download)</label>
+              <input type="text" class="form-control" id="profModalDownload" placeholder="مثال: 50 Mbps" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">سرعة الرفع (Upload)</label>
+              <input type="text" class="form-control" id="profModalUpload" placeholder="مثال: 20 Mbps" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">حصة البيانات (Quota GB)</label>
+              <input type="number" class="form-control" id="profModalQuota" placeholder="مثال: 50" min="1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">مدة الصلاحية (بالأيام)</label>
+              <input type="number" class="form-control" id="profModalValidity" placeholder="مثال: 30" min="1" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">عدد الأجهزة المشتركة (Shared Users)</label>
+            <input type="number" class="form-control" id="profModalShared" value="1" min="1" max="10" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAllModals()">إلغاء</button>
+          <button class="btn btn-primary" onclick="saveProfileFromModal()">حفظ الباقة</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Hotspot User Modal -->
+    <div class="modal-backdrop" id="editUserModal">
+      <div class="modal-window" style="width:500px;">
+        <div class="modal-header">
+          <div class="modal-title">✏️ تعديل بيانات المستخدم</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editUserId" value="" />
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">اسم المستخدم</label>
+              <input type="text" class="form-control" id="editUserUsername" readonly style="opacity:0.8;" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">كلمة المرور الجديدة</label>
+              <input type="text" class="form-control" id="editUserPassword" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">الباقة الحالية</label>
+              <select class="form-control" id="editUserProfile">
+                <option value="30GB">30GB Super Speed</option>
+                <option value="50GB">50GB Ultra Gold</option>
+                <option value="100GB">100GB Max Turbo</option>
+                <option value="Unlimited">Unlimited VIP Fiber</option>
+                <option value="10GB">10GB Economy</option>
+                <option value="20GB">20GB Regular</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">الأيام المتبقية</label>
+              <input type="number" class="form-control" id="editUserDaysLeft" min="0" max="365" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">عنوان IP المخصص</label>
+            <input type="text" class="form-control" id="editUserIp" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAllModals()">إلغاء</button>
+          <button class="btn btn-primary" onclick="saveEditUserModal()">حفظ التعديلات</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Router Modal -->
+    <div class="modal-backdrop" id="addRouterModal">
+      <div class="modal-window" style="width:500px;">
+        <div class="modal-header">
+          <div class="modal-title">➕ إضافة راوتر MikroTik جديد</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">اسم الراوتر التعريفي</label>
+              <input type="text" class="form-control" id="newRouterName" placeholder="مثال: CCR-Main-Branch" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">عنوان IP أو الدومين</label>
+              <input type="text" class="form-control" id="newRouterHost" placeholder="مثال: 192.168.88.1" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">منفذ REST API (Port)</label>
+              <input type="number" class="form-control" id="newRouterPort" value="443" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">موديل اللوحة (Board)</label>
+              <input type="text" class="form-control" id="newRouterBoard" placeholder="CCR2004 / RB4011 / RB750" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">اسم المستخدم للـ API</label>
+              <input type="text" class="form-control" id="newRouterUser" value="admin" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">كلمة المرور</label>
+              <input type="password" class="form-control" id="newRouterPass" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAllModals()">إلغاء</button>
+          <button class="btn btn-primary" onclick="saveNewRouterFromModal()">إضافة وحفظ الراوتر</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Template Modal -->
+    <div class="modal-backdrop" id="newTemplateModal">
+      <div class="modal-window" style="width:480px;">
+        <div class="modal-header">
+          <div class="modal-title">🎨 إنشاء قالب بطاقة جديد</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">اسم القالب</label>
+            <input type="text" class="form-control" id="newTmplName" placeholder="مثال: Emerald Wave Luxury" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">اسم الشبكة أو الشركة</label>
+            <input type="text" class="form-control" id="newTmplCompany" placeholder="شبكة فايبر السريعة" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">شعار أو عبارة ترحيبية</label>
+            <input type="text" class="form-control" id="newTmplSlogan" placeholder="أسرع خدمة إنترنت 24/7" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">اللون الرئيسي (Theme Color)</label>
+            <input type="color" class="form-control" id="newTmplColor" value="#0f766e" style="height:44px;" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAllModals()">إلغاء</button>
+          <button class="btn btn-primary" onclick="saveNewTemplateFromModal()">إنشاء القالب</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add PPPoE User Modal -->
+    <div class="modal-backdrop" id="addPPPoEModal">
+      <div class="modal-window" style="width:520px;">
+        <div class="modal-header">
+          <div class="modal-title">🌐 إضافة اشتراك برودباند (PPPoE Secret)</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">اسم المستخدم (PPPoE User)</label>
+              <input type="text" class="form-control" id="newPPPoEUsername" placeholder="مثال: client_fiber_09" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">كلمة المرور (Secret Password)</label>
+              <input type="text" class="form-control" id="newPPPoEPassword" placeholder="مثال: pass987654" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">باقة البرودباند (Profile)</label>
+              <select class="form-control" id="newPPPoEProfile">
+                <option value="50Mbps Fiber">50Mbps Fiber</option>
+                <option value="30Mbps Home">30Mbps Home</option>
+                <option value="100Mbps Dedicated">100Mbps Dedicated</option>
+                <option value="20Mbps VIP">20Mbps VIP</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">عنوان Local IP (المايكروتك)</label>
+              <input type="text" class="form-control" id="newPPPoELocalIp" value="10.10.10.1" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">عنوان Remote IP (راوتر المشترك)</label>
+              <input type="text" class="form-control" id="newPPPoERemoteIp" placeholder="مثال: 192.168.1.1 أو 10.10.10.15" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Caller ID / رقم الهاتف</label>
+              <input type="text" class="form-control" id="newPPPoECallerId" placeholder="مثال: +967-771234567" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAllModals()">إلغاء</button>
+          <button class="btn btn-primary" onclick="saveNewPPPoEUserFromModal()">إضافة الحساب وحفظه</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Batch Print Modal -->
+    <div class="modal-backdrop" id="batchPrintModal">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div class="modal-title">🖨️ توليد وطباعة بطاقات سريعة</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">الكمية المطلوبة</label>
+            <select class="form-control" id="modalQuickBatchCount">
+              <option value="10">10 بطاقات</option>
+              <option value="24">24 بطاقة (A4 صفحة)</option>
+              <option value="50">50 بطاقة</option>
+              <option value="100">100 بطاقة</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAllModals()">إلغاء</button>
+          <button class="btn btn-primary" onclick="executeBatchPrint(); closeAllModals();">توليد وطباعة فورية</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- A4 Paper Print Preview Modal -->
+    <div class="modal-backdrop" id="a4PrintPreviewModal">
+      <div class="modal-window modal-window-a4">
+        <div class="modal-header">
+          <div class="modal-title">
+            <span>📄</span>
+            <span>معاينة الطباعة الفعلية على ورق A4 (A4 Sheet Print Preview)</span>
+          </div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+
+        <!-- Preview Controls Toolbar -->
+        <div class="a4-preview-toolbar">
+          <div class="a4-toolbar-group">
+            <label class="a4-toolbar-label">تخطيط الورقة:</label>
+            <select class="prop-select" id="a4LayoutSelector" onchange="renderA4PreviewContent()" style="width:170px; padding:4px 8px; font-size:0.8rem;">
+              <option value="24" selected>24 كرت (4 × 6 شبكة كاملة)</option>
+              <option value="12">12 كرت (3 × 4 بطاقات كبيرة)</option>
+              <option value="single">بطاقة واحدة مفردة (Centered)</option>
+            </select>
+          </div>
+
+          <div class="a4-toolbar-group">
+            <label class="a4-toolbar-label">مقياس العرض (Zoom):</label>
+            <select class="prop-select" id="a4ZoomSelector" onchange="changeA4Zoom(this.value)" style="width:110px; padding:4px 8px; font-size:0.8rem;">
+              <option value="0.75">75% (شاشات متوسطة)</option>
+              <option value="0.85" selected>85% (الافتراضي)</option>
+              <option value="1.0">100% (الحجم الفعلي)</option>
+            </select>
+          </div>
+
+          <div class="a4-toolbar-group" style="display:flex; align-items:center; gap:6px;">
+            <input type="checkbox" id="a4ShowCutLines" checked onchange="renderA4PreviewContent()" style="cursor:pointer; width:16px; height:16px;" />
+            <label for="a4ShowCutLines" style="font-size:0.8rem; cursor:pointer; color:var(--text-main); font-weight:700;">
+              خطوط وعلامات القص ✂️
+            </label>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-right:auto;">
+            <button class="btn btn-secondary" onclick="closeAllModals()" style="padding:4px 12px; font-size:0.8rem;">إغلاق</button>
+            <button class="btn btn-primary" onclick="printFromA4Preview()" style="padding:4px 14px; font-size:0.8rem; display:flex; align-items:center; gap:6px;">
+              <span>🖨️</span>
+              <span>طباعة الورقة الآن</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- A4 Scroller Canvas -->
+        <div class="a4-sheet-scroller" id="a4SheetScroller">
+          <div class="a4-paper-page" id="a4PaperPage">
+            <!-- Populated dynamically by script.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direct Device IP Quick Access Modal -->
+    <div class="modal-backdrop" id="directDeviceIpModal">
+      <div class="modal-window" style="width:520px;">
+        <div class="modal-header">
+          <div class="modal-title">🌐 فتح لوحة تحكم القطعة أو الجهاز (Direct IP Access)</div>
+          <button class="drawer-close-btn" onclick="closeAllModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">
+            يمكنك الوصول المباشر إلى واجهة ضبط النانو ستيشن، السكتور (Ubiquiti/MikroTik)، السويتش، أو راوتر المشترك المتصل بالشبكة المحلية.
+          </div>
+          <div class="form-group">
+            <label class="form-label">عنوان IP للقطعة أو الجهاز:</label>
+            <div style="display:flex; gap:0.5rem;">
+              <input type="text" class="form-control" id="directDeviceIpInput" placeholder="مثال: 192.168.88.20 أو 10.0.0.5" style="font-family:'JetBrains Mono'; font-size:1rem; font-weight:700;" />
+              <button class="btn btn-secondary" onclick="copyDirectDeviceIp()" title="نسخ عنوان IP للحافظة">📋 نسخ</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">بروتوكول الويب:</label>
+              <select class="form-control" id="directDeviceProtocol">
+                <option value="http">HTTP (منفذ 80 - الغالبية)</option>
+                <option value="https">HTTPS (منفذ 443 - آمن)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">المنفذ المخصص (اختياري):</label>
+              <input type="number" class="form-control" id="directDevicePort" placeholder="تلقائي (80 أو 443)" />
+            </div>
+          </div>
+          <!-- Quick Presets -->
+          <div style="margin-top:0.75rem;">
+            <label class="form-label" style="font-size:0.75rem;">عناوين واختصارات شائعة في الشبكات:</label>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button class="badge-profile" style="cursor:pointer;" onclick="setDirectDevicePreset('192.168.88.1', 'http')">MikroTik Gateway (192.168.88.1)</button>
+              <button class="badge-profile" style="cursor:pointer;" onclick="setDirectDevicePreset('192.168.1.1', 'http')">Modem/Router (192.168.1.1)</button>
+              <button class="badge-profile" style="cursor:pointer;" onclick="setDirectDevicePreset('192.168.1.20', 'https')">Ubiquiti Default (192.168.1.20)</button>
+              <button class="badge-profile" style="cursor:pointer;" onclick="setDirectDevicePreset('10.0.0.1', 'http')">Hotspot Portal (10.0.0.1)</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between;">
+          <button class="btn btn-secondary" onclick="closeAllModals()">إغلاق</button>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-secondary" onclick="pingTargetFromDeviceModal()" title="فحص استجابة IP قبل فتحه">📡 فحص Ping</button>
+            <button class="btn btn-primary" onclick="launchDirectDeviceIp()" style="background:var(--accent-teal); border-color:var(--accent-teal);">🚀 فتح لوحة التحكم الآن</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ====================================================================
+         Mobile Bottom Navigation Bar (Appears on screens <= 900px)
+         ==================================================================== -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="شريط التنقل السفلي للهاتف">
+      <a class="bottom-nav-item active" data-view="dashboard" id="bnav-dashboard">
+        <div class="bnav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        </div>
+        <span class="bnav-label">الرئيسية</span>
+      </a>
+
+      <a class="bottom-nav-item" data-view="hotspot" id="bnav-hotspot">
+        <div class="bnav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+          <span class="bnav-badge" id="bnavHotspotBadge">0</span>
+        </div>
+        <span class="bnav-label">الهوتسبوت</span>
+      </a>
+
+      <a class="bottom-nav-item" data-view="pppoe" id="bnav-pppoe">
+        <div class="bnav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        </div>
+        <span class="bnav-label">البرودباند</span>
+      </a>
+
+      <a class="bottom-nav-item" data-view="traffic" id="bnav-traffic">
+        <div class="bnav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        </div>
+        <span class="bnav-label">الترافيك</span>
+      </a>
+
+      <a class="bottom-nav-item" data-view="neighbors" id="bnav-neighbors">
+        <div class="bnav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          <span class="bnav-badge" id="bnavNeighborsBadge" style="background:var(--accent-teal); display:none;">0</span>
+        </div>
+        <span class="bnav-label">الأجهزة</span>
+      </a>
+
+      <button class="bottom-nav-item" id="bnavMoreBtn" type="button" aria-label="المزيد من الأقسام">
+        <div class="bnav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+        </div>
+        <span class="bnav-label">المزيد</span>
+      </button>
+    </nav>
+
+    <!-- Mobile More Drawer Sheet -->
+    <div class="mobile-more-sheet-backdrop" id="mobileMoreBackdrop"></div>
+    <div class="mobile-more-sheet" id="mobileMoreSheet">
+      <div class="mobile-more-sheet-header">
+        <div class="mobile-more-sheet-handle"></div>
+        <div class="mobile-more-sheet-title-row">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.15rem;">⚡</span>
+            <strong>كافة أقسام النظام والخدمات</strong>
+          </div>
+          <button class="btn btn-icon" id="closeMobileMoreBtn" style="width:32px; height:32px;">✕</button>
+        </div>
+      </div>
+      <div class="mobile-more-grid">
+        <a class="mobile-grid-item" data-view="mikrotik">
+          <div class="grid-icon" style="background:rgba(59,130,246,0.15); color:var(--primary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+          </div>
+          <span>الميكروتك</span>
+        </a>
+        <a class="mobile-grid-item" data-view="usermanager">
+          <div class="grid-icon" style="background:rgba(245,158,11,0.15); color:var(--accent-amber);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </div>
+          <span>User Manager</span>
+        </a>
+        <a class="mobile-grid-item" data-view="cards">
+          <div class="grid-icon" style="background:rgba(168,85,247,0.15); color:var(--accent-purple);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          </div>
+          <span>مصمم الكروت</span>
+        </a>
+        <a class="mobile-grid-item" data-view="batchprint">
+          <div class="grid-icon" style="background:rgba(13,148,136,0.15); color:var(--accent-teal);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          </div>
+          <span>طباعة A4</span>
+        </a>
+        <a class="mobile-grid-item" data-view="terminal">
+          <div class="grid-icon" style="background:rgba(16,185,129,0.15); color:var(--accent-emerald);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+          </div>
+          <span>Terminal</span>
+        </a>
+        <a class="mobile-grid-item" data-view="dhcp">
+          <div class="grid-icon" style="background:rgba(59,130,246,0.15); color:var(--primary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+          </div>
+          <span>DHCP Leases</span>
+        </a>
+        <a class="mobile-grid-item" data-view="diagnostics">
+          <div class="grid-icon" style="background:rgba(236,72,153,0.15); color:var(--accent-rose);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+          </div>
+          <span>فحص Ping</span>
+        </a>
+        <a class="mobile-grid-item" data-view="logs">
+          <div class="grid-icon" style="background:rgba(148,163,184,0.15); color:var(--text-main);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          </div>
+          <span>سجلات الراوتر</span>
+        </a>
+        <a class="mobile-grid-item" data-view="reports">
+          <div class="grid-icon" style="background:rgba(14,165,233,0.15); color:var(--secondary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line></svg>
+          </div>
+          <span>التقارير</span>
+        </a>
+        <a class="mobile-grid-item" data-view="alerts">
+          <div class="grid-icon" style="background:rgba(244,63,94,0.15); color:var(--accent-rose);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </div>
+          <span>الإشعارات</span>
+        </a>
+        <a class="mobile-grid-item" data-view="settings">
+          <div class="grid-icon" style="background:rgba(100,116,139,0.15); color:var(--text-main);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+          <span>الإعدادات</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Master Vanilla ES6+ Engine -->
+  <script type="module" src="/script.js"></script>
+</body>
+</html>

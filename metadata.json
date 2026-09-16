@@ -1,0 +1,7 @@
+{
+  "name": "Tawaswl MikroTik ISP Control Center",
+  "description": "نظام إدارة شبكات مايكروتك وخدمات الإنترنت المتكامل - هوتسبوت، برودباند PPPoE، يوزر مانجر، مراقبة الترافيك وتصميم الكروت",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
