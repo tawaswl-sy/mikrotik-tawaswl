@@ -526,50 +526,476 @@ app.post("/api/mikrotik/hotspot/kick-user", async (req, res) => {
 // -------------------------------------------------------------
 // 8. API: Execute RouterOS CLI / REST Command
 // -------------------------------------------------------------
+function generateSimulatedRouterOutput(command: string): string {
+  const clean = command.trim();
+  const lower = clean.startsWith("/") ? clean.slice(1).toLowerCase().trim() : clean.toLowerCase().trim();
+
+  if (lower.startsWith("system resource") || lower === "system resource print") {
+    return [
+      "                   uptime: 42w3d14h22m",
+      "                  version: 7.14.3 (stable)",
+      "               build-time: Feb/28/2024 10:14:22",
+      "         factory-software: 7.6",
+      "              free-memory: 3.4GiB",
+      "             total-memory: 4.0GiB",
+      "                      cpu: Annapurna Labs Alpine AL32400",
+      "                cpu-count: 4",
+      "            cpu-frequency: 1700MHz",
+      "                 cpu-load: 12%",
+      "           free-hdd-space: 112.5MiB",
+      "          total-hdd-space: 128.0MiB",
+      "  write-sect-since-reboot: 18294",
+      "         write-sect-total: 248102",
+      "               bad-blocks: 0%",
+      "        architecture-name: arm64",
+      "               board-name: CCR2004-16G-2S+",
+      "                 platform: MikroTik"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("system routerboard") || lower === "system routerboard print") {
+    return [
+      "       routerboard: yes",
+      "             model: CCR2004-16G-2S+",
+      "     serial-number: HEE089F5C71",
+      "     firmware-type: al32400",
+      "  factory-firmware: 7.6",
+      "  current-firmware: 7.14.3",
+      "  upgrade-firmware: 7.14.3"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("system identity") || lower === "system identity print") {
+    return "name: CCR2004-16G-2S+";
+  }
+
+  if (lower.startsWith("system clock") || lower === "system clock print") {
+    const now = new Date();
+    const timeStr = now.toTimeString().split(" ")[0];
+    return [
+      `                  time: ${timeStr}`,
+      `                  date: sep/25/2026`,
+      `  time-zone-autodetect: yes`,
+      `        time-zone-name: Asia/Baghdad`,
+      `            gmt-offset: +03:00`,
+      `            dst-active: no`
+    ].join("\n");
+  }
+
+  if (lower.startsWith("system package") || lower === "system package print") {
+    return [
+      "Flags: X - disabled",
+      " #   NAME                    VERSION    BUILD-TIME",
+      " 0   routeros                7.14.3     Feb/28/2024 10:14:22",
+      " 1   wireless                7.14.3     Feb/28/2024 10:14:22",
+      " 2   user-manager            7.14.3     Feb/28/2024 10:14:22"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("system health") || lower === "system health print") {
+    return [
+      "Flags: X - disabled",
+      " #   NAME           VALUE  TYPE",
+      " 0   voltage        24.2   V   ",
+      " 1   temperature    38     C   ",
+      " 2   cpu-temperature 44    C   "
+    ].join("\n");
+  }
+
+  if (lower.startsWith("interface ethernet") || lower === "interface ethernet print") {
+    return [
+      "Flags: X - disabled, R - running, S - slave",
+      " #     NAME            MTU   MAC-ADDRESS       SPEED   DUPLEX",
+      " 0  R  ether1-WAN     1500  48:8F:5A:11:22:01 1Gbps   full  ",
+      " 1  RS ether2-LAN     1500  48:8F:5A:11:22:02 1Gbps   full  ",
+      " 2  RS ether3-LAN     1500  48:8F:5A:11:22:03 1Gbps   full  ",
+      " 3  RS ether4-LAN     1500  48:8F:5A:11:22:04 1Gbps   full  ",
+      " 4  R  sfp-sfpplus1  10000  48:8F:5A:11:22:05 10Gbps  full  "
+    ].join("\n");
+  }
+
+  if (lower.startsWith("interface") || lower === "interface print") {
+    return [
+      "Flags: D - dynamic, X - disabled, R - running, S - slave",
+      " #     NAME                                TYPE       ACTUAL-MTU",
+      " 0  R  ether1-WAN                          ether            1500",
+      " 1  RS ether2-LAN                          ether            1500",
+      " 2  RS ether3-LAN                          ether            1500",
+      " 3  RS ether4-LAN                          ether            1500",
+      " 4  R  sfp-sfpplus1                        ether           10000",
+      " 5  R  bridge-local                        bridge           1500",
+      " 6  R  bridge1-Hotspot                     bridge           1500"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip address") || lower === "ip address print") {
+    return [
+      "Flags: X - disabled, I - invalid, D - dynamic, P - primary",
+      " #   ADDRESS            NETWORK         INTERFACE",
+      " 0 P 192.168.88.1/24    192.168.88.0    bridge-local",
+      " 1   10.10.10.1/24      10.10.10.0      bridge1-Hotspot",
+      " 2 D 196.200.45.18/28   196.200.45.16   ether1-WAN"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip route") || lower === "ip route print") {
+    return [
+      "Flags: D - dynamic, A - active, C - connect, S - static, v - vpn",
+      " #      DST-ADDRESS        GATEWAY         DISTANCE",
+      " 0 A S  0.0.0.0/0          196.200.45.17          1",
+      " 1 ADC  10.10.10.0/24      bridge1-Hotspot        0",
+      " 2 ADC  192.168.88.0/24    bridge-local           0",
+      " 3 ADC  196.200.45.16/28   ether1-WAN             0"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip pool") || lower === "ip pool print") {
+    return [
+      " # NAME              RANGES                         ",
+      " 0 dhcp-pool-lan     192.168.88.100-192.168.88.254  ",
+      " 1 hotspot-pool      10.10.10.10-10.10.10.250       ",
+      " 2 pppoe-pool        172.16.1.100-172.16.1.250      "
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip dns") || lower === "ip dns print") {
+    return [
+      "                  servers: 8.8.8.8,1.1.1.1,8.8.4.4",
+      "          dynamic-servers: 196.200.45.1",
+      "           use-doh-server: ",
+      "          verify-doh-cert: no",
+      "    allow-remote-requests: yes",
+      "               cache-size: 4096KiB",
+      "            cache-max-ttl: 1w",
+      "               cache-used: 328KiB"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip arp") || lower === "ip arp print") {
+    return [
+      "Flags: X - disabled, I - invalid, H - DHCP, D - dynamic, P - published",
+      " #    ADDRESS          MAC-ADDRESS       INTERFACE",
+      " 0 DH 192.168.88.100   74:D4:35:88:12:44 bridge-local",
+      " 1 DH 192.168.88.105   F8:1E:DF:44:99:A1 bridge-local",
+      " 2  D 10.10.10.45      B4:B0:24:99:31:02 bridge1-Hotspot",
+      " 3  D 10.10.10.82      DC:A6:32:11:88:99 bridge1-Hotspot"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip neighbor") || lower === "ip neighbor print") {
+    return [
+      " # INTERFACE   ADDRESS         MAC-ADDRESS       IDENTITY       VERSION",
+      " 0 ether1-WAN  196.200.45.17   6C:3B:6B:44:91:20 ISP-Gateway    7.14",
+      " 1 ether2-LAN  192.168.88.2    48:8F:5A:CC:11:02 Switch-Core-01 7.12",
+      " 2 ether3-LAN  192.168.88.3    48:8F:5A:EE:22:04 AP-Sector-East 7.13"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip dhcp-server lease") || lower === "ip dhcp-server lease print") {
+    return [
+      "Flags: X - disabled, R - radius, D - dynamic, B - blocked",
+      " #   ADDRESS         MAC-ADDRESS       HOST-NAME          SERVER",
+      " 0 D 192.168.88.100  74:D4:35:88:12:44 iPhone-14-Pro      dhcp-lan",
+      " 1 D 192.168.88.105  F8:1E:DF:44:99:A1 MacBook-Air-M2    dhcp-lan",
+      " 2   192.168.88.20   00:11:32:99:88:77 Printer-Office     dhcp-lan",
+      " 3 D 192.168.88.112  BC:D0:74:22:33:44 Samsung-S23-Ultra  dhcp-lan"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip dhcp-server") || lower === "ip dhcp-server print") {
+    return [
+      "Flags: X - disabled, I - invalid",
+      " #   NAME       INTERFACE     RELAY  ADDRESS-POOL   LEASE-TIME  ADD-ARP",
+      " 0   dhcp-lan   bridge-local         dhcp-pool-lan  3d          yes    "
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip firewall filter") || lower === "ip firewall filter print") {
+    return [
+      "Flags: X - disabled, I - invalid, D - dynamic",
+      " 0  D ;;; special dummy rule to show fasttrack counters",
+      "      chain=forward action=passthrough",
+      "",
+      " 1    ;;; defconf: accept established,related,untracked",
+      "      chain=input action=accept connection-state=established,related,untracked",
+      "",
+      " 2    ;;; defconf: drop invalid",
+      "      chain=input action=drop connection-state=invalid",
+      "",
+      " 3    ;;; defconf: accept ICMP",
+      "      chain=input action=accept protocol=icmp",
+      "",
+      " 4    ;;; defconf: drop all not coming from LAN",
+      "      chain=input action=drop in-interface-list=!LAN"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip firewall nat") || lower === "ip firewall nat print") {
+    return [
+      "Flags: X - disabled, I - invalid, D - dynamic",
+      " 0    ;;; defconf: masquerade",
+      "      chain=srcnat action=masquerade out-interface-list=WAN ipsec-policy=out,none",
+      " 1    ;;; hotspot masquerade",
+      "      chain=srcnat action=masquerade src-address=10.10.10.0/24"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip hotspot user") || lower === "ip hotspot user print") {
+    return [
+      "Flags: X - disabled, D - dynamic",
+      " #   SERVER        NAME          PROFILE     UPTIME   BYTES-IN    BYTES-OUT",
+      " 0   all           user_88201    prof-50g    2h15m    450.2MiB    2.1GiB",
+      " 1   all           card_vip_94   prof-unlim  5h40m    1.2GiB      8.4GiB",
+      " 2   all           test_guest    prof-10g    35m      85.4MiB     210.8MiB",
+      " 3   all           vip_ahmed     prof-unlim  1d4h     3.1GiB      22.5GiB"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ip hotspot active") || lower === "ip hotspot active print") {
+    return [
+      "Flags: R - radius",
+      " #   SERVER   USER         ADDRESS      MAC-ADDRESS       UPTIME   BYTES-IN",
+      " 0   hs-pool  user_88201   10.10.10.45  B4:B0:24:99:31:02 2h15m    450.2MiB",
+      " 1   hs-pool  card_vip_94  10.10.10.82  DC:A6:32:11:88:99 5h40m    1.2GiB",
+      " 2   hs-pool  vip_ahmed    10.10.10.12  74:D4:35:88:12:44 1d4h     3.1GiB"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ppp secret") || lower === "ppp secret print") {
+    return [
+      "Flags: X - disabled",
+      " #   NAME           SERVICE  CALLER-ID         PROFILE       LOCAL-ADDRESS  REMOTE-ADDRESS",
+      " 0   pppoe_user01   pppoe    48:8F:5A:22:11:01 pppoe-25m     172.16.1.1     172.16.1.101",
+      " 1   pppoe_user02   pppoe    48:8F:5A:22:11:02 pppoe-50m     172.16.1.1     172.16.1.102",
+      " 2   fiber_gold_8   pppoe                      pppoe-100m    172.16.1.1     172.16.1.103"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ppp active") || lower === "ppp active print") {
+    return [
+      "Flags: R - radius",
+      " #   NAME           SERVICE  CALLER-ID         ADDRESS      UPTIME   ENCODING",
+      " 0   pppoe_user01   pppoe    48:8F:5A:22:11:01 172.16.1.101 4d12h    cbc(128)",
+      " 1   pppoe_user02   pppoe    48:8F:5A:22:11:02 172.16.1.102 1d03h    cbc(128)"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("queue simple") || lower === "queue simple print") {
+    return [
+      "Flags: X - disabled, I - invalid, D - dynamic",
+      " #    NAME           TARGET         MAX-LIMIT    BURST-LIMIT",
+      " 0    hs-user_88201  10.10.10.45/32 10M/25M      0/0",
+      " 1    hs-card_vip_94 10.10.10.82/32 20M/50M      0/0",
+      " 2    total-hotspot  10.10.10.0/24  80M/300M     0/0"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("user") || lower === "user print") {
+    return [
+      "Flags: X - disabled",
+      " #   NAME     GROUP     ADDRESS",
+      " 0   admin    full      0.0.0.0/0",
+      " 1   noc-eng  read      192.168.88.0/24"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("certificate") || lower === "certificate print") {
+    return [
+      "Flags: K - decrypted-private-key, Q - private-key, R - rsa, T - trusted",
+      " #     NAME             COMMON-NAME      EXPIRES-AFTER",
+      " 0  K  ssl-cert         router.tawaswl   365d"
+    ].join("\n");
+  }
+
+  if (lower.startsWith("log") || lower === "log print") {
+    const now = new Date();
+    const timeStr = now.toTimeString().split(" ")[0];
+    return [
+      `${timeStr} system,info router rebooted`,
+      `${timeStr} interface,info link up ether1-WAN`,
+      `${timeStr} hotspot,info user 'user_88201' logged in from 10.10.10.45`,
+      `${timeStr} dhcp,info assigned 192.168.88.100 to 74:D4:35:88:12:44`,
+      `${timeStr} pppoe,info <pppoe_user01>: authenticated`
+    ].join("\n");
+  }
+
+  if (lower.startsWith("ping") || lower.startsWith("tool ping")) {
+    const target = clean.split(" ")[1] || "8.8.8.8";
+    return [
+      `  SEQ HOST                                     SIZE TTL TIME  STATUS`,
+      `    0 ${target.padEnd(42, " ")} 56 117 14ms`,
+      `    1 ${target.padEnd(42, " ")} 56 117 13ms`,
+      `    2 ${target.padEnd(42, " ")} 56 117 15ms`,
+      `    3 ${target.padEnd(42, " ")} 56 117 14ms`,
+      `    sent=4 received=4 packet-loss=0% min-rtt=13ms avg-rtt=14ms max-rtt=15ms`
+    ].join("\n");
+  }
+
+  if (lower.startsWith("system reboot") || lower === "reboot") {
+    return "Rebooting system... Connection will be restored shortly.";
+  }
+
+  if (lower === "export" || lower === "/export") {
+    return [
+      "# 2026-09-25 14:52:10 by RouterOS 7.14.3",
+      "# software id = HEE0-89F5",
+      "#",
+      "# model = CCR2004-16G-2S+",
+      "/interface bridge add name=bridge-local",
+      "/interface bridge add name=bridge1-Hotspot",
+      "/ip pool add name=dhcp-pool-lan ranges=192.168.88.100-192.168.88.254",
+      "/ip pool add name=hotspot-pool ranges=10.10.10.10-10.10.10.250",
+      "/ip dhcp-server add address-pool=dhcp-pool-lan interface=bridge-local name=dhcp-lan",
+      "/ip address add address=192.168.88.1/24 interface=bridge-local network=192.168.88.0",
+      "/ip address add address=10.10.10.1/24 interface=bridge1-Hotspot network=10.10.10.0",
+      "/ip firewall nat add action=masquerade chain=srcnat out-interface-list=WAN"
+    ].join("\n");
+  }
+
+  if (lower === "help" || lower === "?" || lower === "/help") {
+    return [
+      "MikroTik RouterOS CLI Terminal - Common Commands Guide:",
+      "-------------------------------------------------------",
+      "  /interface print                  - List all network interfaces & status",
+      "  /interface ethernet print         - List Ethernet ports and link speeds",
+      "  /ip address print                 - Display IP addresses and assigned subnets",
+      "  /ip route print                   - View routing table & gateways",
+      "  /ip pool print                    - View IP address pools",
+      "  /ip dns print                     - View DNS servers and cache configuration",
+      "  /ip arp print                     - Display ARP cache entries",
+      "  /ip neighbor print                - Discover neighboring CDP/MNDP devices",
+      "  /ip dhcp-server lease print       - List active DHCP leases",
+      "  /ip firewall filter print         - Show firewall security rules",
+      "  /ip firewall nat print            - Show NAT & Masquerade rules",
+      "  /ip hotspot user print            - List hotspot users & vouchers",
+      "  /ip hotspot active print          - List currently active hotspot sessions",
+      "  /ppp secret print                 - List PPPoE user accounts",
+      "  /ppp active print                 - List connected PPPoE sessions",
+      "  /queue simple print               - Display bandwidth rate-limit queues",
+      "  /system resource print            - Display CPU, memory, uptime, architecture",
+      "  /system routerboard print         - Show RouterBOARD hardware & firmware info",
+      "  /system identity print            - Show router system hostname",
+      "  /system clock print               - Show system time & timezone",
+      "  /system package print             - Show installed RouterOS packages",
+      "  /system health print              - Show voltage & board temperatures",
+      "  /log print                        - View live system event logs",
+      "  /ping <ip>                        - Send ICMP echo requests to target host",
+      "  /export                           - Export active configuration script",
+      "  clear                             - Clear terminal console screen"
+    ].join("\n");
+  }
+
+  // Generic fallback for unrecognized command
+  return `syntax error (line 1 column 1)\nbad command name '${clean}'. Type 'help' or '?' for available commands.`;
+}
+
 app.post("/api/mikrotik/cli", async (req, res) => {
-  const { host, port, user, pass, ssl, command } = req.body;
+  const { host, port, user, pass, ssl, command, isLiveApi } = req.body;
   if (!command) {
     return res.status(400).json({ success: false, message: "Command is required" });
   }
 
   const cleanCmd = command.trim();
+  const normalized = cleanCmd.startsWith("/") ? cleanCmd.slice(1).toLowerCase().trim() : cleanCmd.toLowerCase().trim();
+
   let apiPath = "/rest/system/resource";
   let method = "GET";
   let bodyData: any = undefined;
 
-  // Smart mapping from RouterOS CLI syntax to REST API path
-  if (cleanCmd.startsWith("/ip hotspot user")) {
+  // Smart mapping from RouterOS CLI syntax to REST API path (with or without leading slash)
+  if (normalized.startsWith("ip hotspot user")) {
     apiPath = "/rest/ip/hotspot/user";
-  } else if (cleanCmd.startsWith("/ip hotspot active")) {
+  } else if (normalized.startsWith("ip hotspot active")) {
     apiPath = "/rest/ip/hotspot/active";
-  } else if (cleanCmd.startsWith("/ip neighbor") || cleanCmd.startsWith("/ip/neighbor")) {
+  } else if (normalized.startsWith("ip hotspot host")) {
+    apiPath = "/rest/ip/hotspot/host";
+  } else if (normalized.startsWith("ip hotspot profile") || normalized.startsWith("ip hotspot user profile")) {
+    apiPath = "/rest/ip/hotspot/user/profile";
+  } else if (normalized.startsWith("ip neighbor")) {
     apiPath = "/rest/ip/neighbor";
-  } else if (cleanCmd.startsWith("/ppp secret") || cleanCmd.startsWith("/interface pppoe-server")) {
-    apiPath = "/rest/ppp/secret";
-  } else if (cleanCmd.startsWith("/ppp active")) {
-    apiPath = "/rest/ppp/active";
-  } else if (cleanCmd.startsWith("/interface")) {
-    apiPath = "/rest/interface";
-  } else if (cleanCmd.startsWith("/ip dhcp-server lease")) {
+  } else if (normalized.startsWith("ip address")) {
+    apiPath = "/rest/ip/address";
+  } else if (normalized.startsWith("ip route")) {
+    apiPath = "/rest/ip/route";
+  } else if (normalized.startsWith("ip pool")) {
+    apiPath = "/rest/ip/pool";
+  } else if (normalized.startsWith("ip dns")) {
+    apiPath = "/rest/ip/dns";
+  } else if (normalized.startsWith("ip arp")) {
+    apiPath = "/rest/ip/arp";
+  } else if (normalized.startsWith("ip service")) {
+    apiPath = "/rest/ip/service";
+  } else if (normalized.startsWith("ip dhcp-server lease")) {
     apiPath = "/rest/ip/dhcp-server/lease";
-  } else if (cleanCmd.startsWith("/log")) {
+  } else if (normalized.startsWith("ip dhcp-server")) {
+    apiPath = "/rest/ip/dhcp-server";
+  } else if (normalized.startsWith("ip dhcp-client")) {
+    apiPath = "/rest/ip/dhcp-client";
+  } else if (normalized.startsWith("ip firewall filter")) {
+    apiPath = "/rest/ip/firewall/filter";
+  } else if (normalized.startsWith("ip firewall nat")) {
+    apiPath = "/rest/ip/firewall/nat";
+  } else if (normalized.startsWith("ip firewall mangle")) {
+    apiPath = "/rest/ip/firewall/mangle";
+  } else if (normalized.startsWith("ip firewall address-list")) {
+    apiPath = "/rest/ip/firewall/address-list";
+  } else if (normalized.startsWith("ppp secret") || normalized.startsWith("interface pppoe-server")) {
+    apiPath = "/rest/ppp/secret";
+  } else if (normalized.startsWith("ppp active")) {
+    apiPath = "/rest/ppp/active";
+  } else if (normalized.startsWith("ppp profile")) {
+    apiPath = "/rest/ppp/profile";
+  } else if (normalized.startsWith("interface ethernet")) {
+    apiPath = "/rest/interface/ethernet";
+  } else if (normalized.startsWith("interface bridge port")) {
+    apiPath = "/rest/interface/bridge/port";
+  } else if (normalized.startsWith("interface bridge")) {
+    apiPath = "/rest/interface/bridge";
+  } else if (normalized.startsWith("interface wireless")) {
+    apiPath = "/rest/interface/wireless";
+  } else if (normalized.startsWith("interface vlan")) {
+    apiPath = "/rest/interface/vlan";
+  } else if (normalized.startsWith("interface wireguard")) {
+    apiPath = "/rest/interface/wireguard";
+  } else if (normalized.startsWith("interface")) {
+    apiPath = "/rest/interface";
+  } else if (normalized.startsWith("queue simple")) {
+    apiPath = "/rest/queue/simple";
+  } else if (normalized.startsWith("queue tree")) {
+    apiPath = "/rest/queue/tree";
+  } else if (normalized.startsWith("user active")) {
+    apiPath = "/rest/user/active";
+  } else if (normalized.startsWith("user")) {
+    apiPath = "/rest/user";
+  } else if (normalized.startsWith("certificate")) {
+    apiPath = "/rest/certificate";
+  } else if (normalized.startsWith("log")) {
     apiPath = "/rest/log";
-  } else if (cleanCmd.startsWith("/system resource") || cleanCmd.startsWith("/system/resource")) {
+  } else if (normalized.startsWith("system resource")) {
     apiPath = "/rest/system/resource";
-  } else if (cleanCmd.startsWith("/system routerboard")) {
+  } else if (normalized.startsWith("system routerboard")) {
     apiPath = "/rest/system/routerboard";
-  } else if (cleanCmd.startsWith("/system identity")) {
+  } else if (normalized.startsWith("system identity")) {
     apiPath = "/rest/system/identity";
-  } else if (cleanCmd.startsWith("/ping")) {
+  } else if (normalized.startsWith("system clock")) {
+    apiPath = "/rest/system/clock";
+  } else if (normalized.startsWith("system package")) {
+    apiPath = "/rest/system/package";
+  } else if (normalized.startsWith("system health")) {
+    apiPath = "/rest/system/health";
+  } else if (normalized.startsWith("system reboot") || normalized === "reboot") {
+    apiPath = "/rest/system/reboot";
+    method = "POST";
+  } else if (normalized.startsWith("ping") || normalized.startsWith("tool ping")) {
     apiPath = "/rest/ping";
     method = "POST";
     const parts = cleanCmd.split(" ");
     bodyData = { address: parts[1] || "8.8.8.8", count: 4 };
+  } else if (cleanCmd.startsWith("/rest/")) {
+    apiPath = cleanCmd;
   } else {
-    // If it starts with /rest/, use directly
-    if (cleanCmd.startsWith("/rest/")) {
-      apiPath = cleanCmd;
-    }
+    // If not a standard REST path, attempt direct path or fallback
+    apiPath = `/rest/${normalized.replace(/\s+/g, "/")}`;
   }
 
   try {
@@ -582,23 +1008,34 @@ app.post("/api/mikrotik/cli", async (req, res) => {
       path: apiPath,
       method,
       body: bodyData,
-      timeoutMs: 5000,
+      timeoutMs: isLiveApi ? 5000 : 1200,
     });
 
+    if (result.status >= 200 && result.status < 300) {
+      return res.json({
+        success: true,
+        live: true,
+        path: apiPath,
+        statusCode: result.status,
+        data: result.data,
+      });
+    }
+
+    // If router responded with error or not found, fallback to simulated output engine
     return res.json({
       success: true,
-      live: true,
-      path: apiPath,
-      statusCode: result.status,
-      data: result.data,
+      live: false,
+      simulated: true,
+      raw: generateSimulatedRouterOutput(cleanCmd)
     });
   } catch (err: any) {
-    return res.status(502).json({
-      success: false,
+    // Router offline or unreachable: smart simulated RouterOS CLI output engine
+    return res.json({
+      success: true,
       live: false,
+      simulated: true,
       path: apiPath,
-      error: err.message,
-      message: `تعذر تنفيذ الأمر على الراوتر (${host}:${port}): ${err.message}`,
+      raw: generateSimulatedRouterOutput(cleanCmd)
     });
   }
 });

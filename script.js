@@ -104,8 +104,13 @@ const AppState = {
   selectedUserForDrawer: null,
   trafficHistory: {
     labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '24:00'],
-    download: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    upload: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    download: [110, 140, 165, 190, 220, 260, 290, 210, 185],
+    upload: [35, 42, 50, 48, 65, 75, 82, 60, 45],
+    packets: [24, 28, 32, 35, 44, 52, 48, 40, 34.2]
+  },
+  trafficCollection: {
+    enabled: true,
+    monitoredInterface: 'ether1-WAN'
   },
   liveRealtime: {
     currentRxMbps: 0.0,
@@ -197,9 +202,17 @@ function applyTheme(theme) {
   localStorage.setItem(STORAGE_KEYS.THEME, theme);
   const themeBtn = document.getElementById('themeToggleBtn');
   if (themeBtn) {
-    themeBtn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
-    themeBtn.title = theme === 'dark' ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن';
+    if (theme === 'dark') {
+      themeBtn.innerHTML = `<svg id="themeIconSvg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+      themeBtn.title = 'التبديل إلى الوضع الفاتح (النهاري)';
+    } else {
+      themeBtn.innerHTML = `<svg id="themeIconSvg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      themeBtn.title = 'التبديل إلى الوضع الداكن (الليلي)';
+    }
   }
+  // Re-render canvas charts immediately to adapt grid and font colors
+  if (typeof renderTrafficChart === 'function') renderTrafficChart();
+  if (typeof renderDonutChart === 'function') renderDonutChart();
 }
 
 function toggleTheme() {
@@ -450,6 +463,7 @@ const MikroTikAPI = {
           user: router.user,
           pass: router.pass,
           ssl: router.ssl !== false,
+          isLiveApi: router.isLiveApi === true,
           command
         }),
         signal: AbortSignal.timeout(10000)
@@ -759,6 +773,11 @@ async function syncRouterDataLive() {
     if (syncDot) syncDot.style.background = '#38bdf8';
     showToast(`تم تحديث البيانات الحية للنظام (محرك RouterOS v7 النشط)`, 'info');
   }
+
+  // Refresh unified NOC dashboard if active
+  if (typeof renderUnifiedDashboard === 'function') {
+    renderUnifiedDashboard();
+  }
 }
 
 // ==========================================================================
@@ -771,47 +790,74 @@ function renderTrafficChart() {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
   
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  const w = rect.width > 0 ? rect.width : (canvas.parentElement?.clientWidth || 460);
+  const h = rect.height > 0 ? rect.height : 165;
+
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
   ctx.scale(dpr, dpr);
 
-  const w = rect.width;
-  const h = rect.height;
-  const padding = { top: 20, right: 20, bottom: 35, left: 45 };
-  const graphW = w - padding.left - padding.right;
-  const graphH = h - padding.top - padding.bottom;
+  const padding = { top: 12, right: 38, bottom: 22, left: 36 };
+  const graphW = Math.max(10, w - padding.left - padding.right);
+  const graphH = Math.max(10, h - padding.top - padding.bottom);
 
   ctx.clearRect(0, 0, w, h);
 
-  // Background Grid Lines
-  ctx.strokeStyle = document.documentElement.getAttribute('data-theme') === 'light' ? '#e2e8f0' : '#1e293b';
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+
+  // Subtle Background Grid Lines
+  ctx.strokeStyle = isLight ? 'rgba(15, 23, 42, 0.07)' : 'rgba(255, 255, 255, 0.05)';
   ctx.lineWidth = 1;
-  const ySteps = 4;
-  const maxVal = 350; // Mbps
+  const ySteps = 3;
+
+  // Adaptive scale based on current data
+  const dlMax = Math.max(...AppState.trafficHistory.download, 100);
+  const maxVal = Math.max(250, Math.ceil(dlMax / 50) * 50); // Mbps (Left Y-Axis Scale)
+  const ppsMax = Math.max(...(AppState.trafficHistory.packets || [35]), 30);
+  const maxKpps = Math.max(60, Math.ceil(ppsMax / 15) * 15); // kpps (Right Y-Axis Secondary Scale)
+
+  // Axis Unit Headers
+  ctx.fillStyle = isLight ? '#475569' : '#94a3b8';
+  ctx.font = '8px "JetBrains Mono", monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('Mbps', padding.left - 4, padding.top - 2);
+
+  ctx.fillStyle = isLight ? '#7c3aed' : '#c084fc';
+  ctx.textAlign = 'left';
+  ctx.fillText('kpps', w - padding.right + 5, padding.top - 2);
 
   for (let i = 0; i <= ySteps; i++) {
     const y = padding.top + (graphH / ySteps) * i;
     const val = Math.round(maxVal - (maxVal / ySteps) * i);
+    const valPps = Math.round(maxKpps - (maxKpps / ySteps) * i);
     
     ctx.beginPath();
     ctx.moveTo(padding.left, y);
     ctx.lineTo(w - padding.right, y);
     ctx.stroke();
 
-    // Axis Labels
-    ctx.fillStyle = '#64748b';
-    ctx.font = '11px Plus Jakarta Sans, sans-serif';
+    // Primary Left Axis: Bandwidth in Mbps
+    ctx.fillStyle = isLight ? '#475569' : '#94a3b8';
+    ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
-    ctx.fillText(`${val}M`, padding.left - 8, y + 4);
+    ctx.fillText(`${val}M`, padding.left - 5, y + 3.5);
+
+    // Secondary Right Axis: Packet throughput in kpps (Purple)
+    ctx.fillStyle = isLight ? '#7c3aed' : '#c084fc';
+    ctx.font = '9px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${valPps}k`, w - padding.right + 6, y + 3.5);
   }
 
   // Draw Time Labels (X-Axis)
   const labels = AppState.trafficHistory.labels;
   const xStep = graphW / (labels.length - 1);
   ctx.textAlign = 'center';
+  ctx.fillStyle = isLight ? '#64748b' : '#718096';
+  ctx.font = '10px "JetBrains Mono", monospace';
   labels.forEach((lbl, idx) => {
     const x = padding.left + idx * xStep;
-    ctx.fillText(lbl, x, h - 10);
+    ctx.fillText(lbl, x, h - 6);
   });
 
   // Helper to draw smooth bezier curve with gradient fill
@@ -853,26 +899,100 @@ function renderTrafficChart() {
     }
     ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2.2;
     ctx.shadowColor = glowColor;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = isLight ? 4 : 8;
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Draw End Glowing Point
+    // Draw End Glowing Pulse Point
     const lastPoint = points[points.length - 1];
     ctx.beginPath();
-    ctx.arc(lastPoint.x, lastPoint.y, 4.5, 0, Math.PI * 2);
+    ctx.arc(lastPoint.x, lastPoint.y, 4, 0, Math.PI * 2);
     ctx.fillStyle = strokeColor;
     ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = isLight ? '#ffffff' : '#07090e';
     ctx.stroke();
   }
 
-  // Draw Download (Blue/Cyan) & Upload (Emerald)
-  drawLineArea(AppState.trafficHistory.download, '#3b82f6', 'rgba(59, 130, 246, 0.35)', 'rgba(59, 130, 246, 0.6)');
-  drawLineArea(AppState.trafficHistory.upload, '#10b981', 'rgba(16, 185, 129, 0.25)', 'rgba(16, 185, 129, 0.6)');
+  // Helper to draw Secondary Overlay: Packet Throughput (kpps)
+  function drawPacketThroughput(data, strokeColor, fillColor, glowColor) {
+    if (!data || !data.length) return;
+    const points = data.map((val, idx) => {
+      const x = padding.left + idx * xStep;
+      const y = padding.top + graphH - (Math.min(maxKpps, val) / maxKpps) * graphH;
+      return { x, y };
+    });
+
+    // Translucent Area Fill
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, padding.top + graphH);
+    ctx.lineTo(points[0].x, points[0].y);
+
+    for (let i = 0; i < points.length - 1; i++) {
+      const xc = (points[i].x + points[i + 1].x) / 2;
+      const yc = (points[i].y + points[i + 1].y) / 2;
+      ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+    }
+    ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+    ctx.lineTo(points[points.length - 1].x, padding.top + graphH);
+    ctx.closePath();
+
+    const gradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + graphH);
+    gradient.addColorStop(0, fillColor);
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Distinct Dashed Stroke Line
+    ctx.save();
+    ctx.beginPath();
+    ctx.setLineDash([4, 3]);
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 0; i < points.length - 1; i++) {
+      const xc = (points[i].x + points[i + 1].x) / 2;
+      const yc = (points[i].y + points[i + 1].y) / 2;
+      ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+    }
+    ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 1.8;
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = isLight ? 3 : 6;
+    ctx.stroke();
+    ctx.restore();
+
+    // Pulse Marker at the end point
+    const lastPoint = points[points.length - 1];
+    ctx.beginPath();
+    ctx.arc(lastPoint.x, lastPoint.y, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = strokeColor;
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = isLight ? '#ffffff' : '#07090e';
+    ctx.stroke();
+  }
+
+  // Theme-aware line and glow colors
+  const dlStroke = isLight ? '#2563eb' : '#38bdf8';
+  const dlFill = isLight ? 'rgba(37, 99, 235, 0.16)' : 'rgba(56, 189, 248, 0.22)';
+  const dlGlow = isLight ? 'rgba(37, 99, 235, 0.3)' : 'rgba(56, 189, 248, 0.5)';
+
+  const ulStroke = isLight ? '#059669' : '#10b981';
+  const ulFill = isLight ? 'rgba(5, 150, 105, 0.14)' : 'rgba(16, 185, 129, 0.18)';
+  const ulGlow = isLight ? 'rgba(5, 150, 105, 0.3)' : 'rgba(16, 185, 129, 0.5)';
+
+  const ppsStroke = isLight ? '#7c3aed' : '#c084fc';
+  const ppsFill = isLight ? 'rgba(124, 58, 237, 0.08)' : 'rgba(192, 132, 252, 0.12)';
+  const ppsGlow = isLight ? 'rgba(124, 58, 237, 0.3)' : 'rgba(192, 132, 252, 0.4)';
+
+  // 1. Draw Secondary Packets (kpps) Area & Line
+  drawPacketThroughput(AppState.trafficHistory.packets || [24, 28, 32, 35, 44, 52, 48, 40, 34.2], ppsStroke, ppsFill, ppsGlow);
+
+  // 2. Draw Download (Blue/Cyan) & Upload (Emerald) Bandwidth Lines & Areas
+  drawLineArea(AppState.trafficHistory.download, dlStroke, dlFill, dlGlow);
+  drawLineArea(AppState.trafficHistory.upload, ulStroke, ulFill, ulGlow);
 }
 
 function renderDonutChart() {
@@ -880,7 +1000,7 @@ function renderDonutChart() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
-  const size = 190;
+  const size = 145;
   canvas.width = size * dpr;
   canvas.height = size * dpr;
   canvas.style.width = `${size}px`;
@@ -889,13 +1009,34 @@ function renderDonutChart() {
 
   const cx = size / 2;
   const cy = size / 2;
-  const outerR = 80;
-  const innerR = 56;
+  const outerR = 62;
+  const innerR = 44;
+
+  const hsCount = AppState.hotspotUsers?.length || 8523;
+  const pppCount = AppState.pppoeUsers?.length || 2410;
+  const umCount = AppState.usermanProfiles?.length || 380;
+  const total = hsCount + pppCount + umCount;
+
+  // Update DOM total labels
+  const totalEl = document.getElementById('donutTotalVal');
+  if (totalEl) totalEl.textContent = total.toLocaleString();
+
+  const totalPill = document.getElementById('donutTotalCountPill');
+  if (totalPill) totalPill.textContent = `${total.toLocaleString()} نشط`;
+
+  const hsLegend = document.getElementById('legendHotspotCount');
+  if (hsLegend) hsLegend.textContent = `${Math.round((hsCount / total) * 100)}%`;
+
+  const pppLegend = document.getElementById('legendPppoeCount');
+  if (pppLegend) pppLegend.textContent = `${Math.round((pppCount / total) * 100)}%`;
+
+  const umLegend = document.getElementById('legendUsermanCount');
+  if (umLegend) umLegend.textContent = `${Math.round((umCount / total) * 100)}%`;
 
   const slices = [
-    { label: 'Hotspot', percent: 0.65, color: '#3b82f6' },
-    { label: 'PPPoE', percent: 0.28, color: '#10b981' },
-    { label: 'User Manager', percent: 0.07, color: '#f59e0b' }
+    { label: 'Hotspot', percent: hsCount / total, color: '#3b82f6' },
+    { label: 'PPPoE', percent: pppCount / total, color: '#10b981' },
+    { label: 'User Manager', percent: umCount / total, color: '#f59e0b' }
   ];
 
   let startAngle = -Math.PI / 2;
@@ -911,6 +1052,190 @@ function renderDonutChart() {
     ctx.fill();
     startAngle += sliceAngle;
   });
+}
+
+// ==========================================================================
+// Unified Dashboard & NOC Management Renderer
+// ==========================================================================
+function renderUnifiedDashboard() {
+  const router = AppState.activeRouter || DEFAULT_ROUTER;
+
+  // 1. Update Active Router info on Dashboard
+  const nameEl = document.getElementById('mikrotikActiveName');
+  if (nameEl) nameEl.textContent = router.name || 'CCR2004-16G-2S+ Core';
+
+  const modelEl = document.getElementById('mikrotikViewModel');
+  if (modelEl) modelEl.textContent = router.board || 'CCR2004-16G-2S+';
+
+  const versionEl = document.getElementById('mikrotikViewVersion');
+  if (versionEl) versionEl.textContent = router.version || 'RouterOS v7.14.3';
+
+  const endpointEl = document.getElementById('mikrotikViewEndpoint');
+  if (endpointEl) endpointEl.textContent = `${router.ssl !== false ? 'https' : 'http'}://${router.host}:${router.port} (REST API)`;
+
+  const uptimeEl = document.getElementById('mikrotikViewUptime');
+  if (uptimeEl) uptimeEl.textContent = router.uptime || '1d 04h 12m';
+
+  const statusPill = document.getElementById('mikrotikViewStatusPill');
+  const liveDot = document.getElementById('mikrotikLiveDot');
+  if (statusPill) {
+    if (router.status === 'online' || router.isLiveApi) {
+      statusPill.className = 'badge-status-pill badge-status-online';
+      statusPill.innerHTML = '<span class="status-dot"></span> متصل حياً';
+      if (liveDot) liveDot.style.background = '#10b981';
+    } else {
+      statusPill.className = 'badge-status-pill badge-status-offline';
+      statusPill.innerHTML = '<span class="status-dot" style="background:#64748b;"></span> محاكاة ذكية';
+      if (liveDot) liveDot.style.background = '#38bdf8';
+    }
+  }
+
+  // 2. Update Hardware meters on Dashboard
+  const cpuVal = router.cpu || 18;
+  const cpuFill = document.getElementById('dashboardCpuFill');
+  const cpuText = document.getElementById('dashboardCpuVal');
+  if (cpuFill) cpuFill.style.width = `${cpuVal}%`;
+  if (cpuText) cpuText.textContent = `${cpuVal}%`;
+
+  const ramFill = document.getElementById('dashboardRamFill');
+  const ramText = document.getElementById('dashboardRamVal');
+  if (ramFill) ramFill.style.width = '35%';
+  if (ramText) ramText.textContent = router.memory || '1.4 GB / 4.0 GB';
+
+  // 3. Update 4 KPI Stat Cards
+  const totalHs = AppState.hotspotUsers ? AppState.hotspotUsers.length : 0;
+  const totalPpp = AppState.pppoeUsers ? AppState.pppoeUsers.length : 0;
+  const totalUsers = totalHs + totalPpp + 24; // hotspot + pppoe + userman
+
+  const kpiTotal = document.getElementById('kpiTotalUsers');
+  if (kpiTotal) kpiTotal.textContent = totalUsers.toLocaleString();
+
+  const activeHs = AppState.hotspotUsers ? AppState.hotspotUsers.filter(u => u.status === 'online').length : 0;
+  const activePpp = AppState.pppoeUsers ? AppState.pppoeUsers.filter(u => u.status === 'online').length : 0;
+  const totalActive = Math.max(1, activeHs + activePpp);
+
+  const kpiOnline = document.getElementById('liveOnlineCount');
+  if (kpiOnline) kpiOnline.textContent = totalActive.toLocaleString();
+
+  const kpiTraffic = document.getElementById('kpiTodayBandwidth');
+  if (kpiTraffic) kpiTraffic.innerHTML = `284.5 <small style="font-size:0.9rem; font-weight:600;">GB</small>`;
+
+  const totalDevs = (AppState.dhcpLeases ? AppState.dhcpLeases.length : 0) + (AppState.hotspotHosts ? AppState.hotspotHosts.length : 0);
+  const kpiDevs = document.getElementById('kpiTotalDevices');
+  if (kpiDevs) kpiDevs.textContent = (totalDevs || 48).toString();
+
+  // 4. Update Router Interfaces Table
+  renderDashboardInterfaces();
+
+  // 5. Update Donut legends
+  const hsLegend = document.getElementById('legendHotspotCount');
+  if (hsLegend) hsLegend.textContent = totalHs.toString();
+  const pppLegend = document.getElementById('legendPppoeCount');
+  if (pppLegend) pppLegend.textContent = totalPpp.toString();
+  const usermanLegend = document.getElementById('legendUsermanCount');
+  if (usermanLegend) usermanLegend.textContent = '24';
+  const donutTotal = document.getElementById('donutTotalVal');
+  if (donutTotal) donutTotal.textContent = totalUsers.toString();
+
+  // 6. Update Top Talkers List
+  renderDashboardTopTalkers();
+
+  // 7. Update System Alerts List
+  renderDashboardAlerts();
+}
+
+function renderDashboardInterfaces() {
+  const tbody = document.getElementById('mikrotikInterfacesTableBody');
+  if (!tbody) return;
+
+  const rx = AppState.liveRealtime?.currentRxMbps || 142.5;
+  const tx = AppState.liveRealtime?.currentTxMbps || 38.2;
+
+  const interfaces = [
+    { name: 'ether1-WAN', desc: 'Fiber Optical ( مزود الخدمة ISP )', type: 'WAN / SFP', speed: '1 Gbps Full', rx: rx, tx: tx, status: 'running' },
+    { name: 'ether2-LAN', desc: 'Distribution Core ( شبكة التوزيع )', type: 'Ethernet', speed: '1 Gbps Full', rx: (rx * 0.65).toFixed(1), tx: (tx * 0.75).toFixed(1), status: 'running' },
+    { name: 'bridge1-Hotspot', desc: 'Access Points ( نقاط البث )', type: 'Bridge', speed: '1 Gbps', rx: (rx * 0.42).toFixed(1), tx: (tx * 0.48).toFixed(1), status: 'running' },
+    { name: 'sfp-plus1', desc: '10G Trunk Fiber Link', type: 'SFP+ 10G', speed: '10 Gbps Full', rx: (rx * 0.92).toFixed(1), tx: (tx * 0.90).toFixed(1), status: 'running' }
+  ];
+
+  tbody.innerHTML = interfaces.map(iface => `
+    <tr>
+      <td>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span class="status-dot"></span>
+          <div>
+            <strong style="color:var(--text-main); font-size:0.82rem;">${iface.name}</strong>
+            <div style="font-size:0.68rem; color:var(--text-dim);">${iface.desc}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge-profile" style="font-size:0.7rem; padding:0.1rem 0.45rem;">${iface.type}</span></td>
+      <td>
+        <span class="badge-status-pill badge-status-online" style="font-size:0.68rem; padding:0.12rem 0.45rem;">
+          <span class="status-dot"></span> متصل (Up)
+        </span>
+      </td>
+      <td class="font-mono" style="font-size:0.76rem; color:var(--text-muted);">${iface.speed}</td>
+      <td>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <span class="font-mono text-blue" style="font-size:0.78rem; font-weight:700;">↓ ${iface.rx} M</span>
+          <span class="font-mono text-emerald" style="font-size:0.78rem; font-weight:700;">↑ ${iface.tx} M</span>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderDashboardTopTalkers() {
+  const container = document.getElementById('dashboardTopTalkersList');
+  if (!container) return;
+
+  const users = AppState.hotspotUsers ? [...AppState.hotspotUsers] : [];
+  users.sort((a, b) => (b.usedGB || 0) - (a.usedGB || 0));
+  const topUsers = users.slice(0, 5);
+
+  if (topUsers.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:1.25rem; color:var(--text-dim); font-size:0.8rem;">لا توجد بيانات استهلاك حالياً</div>';
+    return;
+  }
+
+  container.innerHTML = topUsers.map((u, i) => {
+    const pct = Math.min(100, Math.round(((u.usedGB || 0) / (u.totalGB || 30)) * 100));
+    return `
+      <div class="rank-item" style="padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+        <span class="rank-crown-icon" style="font-size:0.8rem; width:18px;">${i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : `${i + 1}`))}</span>
+        <div class="rank-user-name" title="${u.username}" style="width:90px; font-size:0.8rem;">${u.username}</div>
+        <div class="rank-progress-track" style="height:6px;">
+          <div class="rank-progress-fill" style="width:${pct}%;"></div>
+        </div>
+        <span class="rank-val" style="width:85px; font-size:0.74rem;">${u.usedGB || 0} / ${u.totalGB || 30} GB</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderDashboardAlerts() {
+  const container = document.getElementById('dashboardAlertsList');
+  if (!container) return;
+
+  const alerts = AppState.systemAlerts || [];
+  if (alerts.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:1.25rem; color:var(--text-dim); font-size:0.8rem;">✅ لا توجد تنبيهات حالية، النظام والراوتر يعملان باستقرار تام</div>';
+    return;
+  }
+
+  container.innerHTML = alerts.slice(0, 4).map(a => `
+    <div class="alert-card-item alert-${a.type || 'warn'}" style="padding:0.45rem 0.65rem; font-size:0.76rem;">
+      <div class="alert-left-meta" style="gap:0.45rem;">
+        <span>${a.type === 'err' ? '🚨' : (a.type === 'success' ? '✅' : '⚠️')}</span>
+        <div>
+          <strong style="color:var(--text-main); font-size:0.78rem;">${a.title}</strong>
+          <div style="color:var(--text-muted); font-size:0.7rem;">${a.desc}</div>
+        </div>
+      </div>
+      <span style="font-size:0.65rem; color:var(--text-dim);">${a.time || 'الآن'}</span>
+    </div>
+  `).join('');
 }
 
 function renderUserWeeklyChart(canvasId) {
@@ -980,27 +1305,72 @@ function renderUserWeeklyChart(canvasId) {
 // ==========================================================================
 function startLiveStreamingLoop() {
   setInterval(() => {
-    // Fluctuate realtime bandwidth naturally
-    const deltaRx = (Math.random() * 14 - 7);
-    const deltaTx = (Math.random() * 6 - 3);
+    // Only update traffic graphs if data collection is enabled (not paused)
+    const isTrafficEnabled = AppState.trafficCollection ? AppState.trafficCollection.enabled !== false : true;
     
-    AppState.liveRealtime.currentRxMbps = Math.max(80, Math.min(320, +(AppState.liveRealtime.currentRxMbps + deltaRx).toFixed(1)));
-    AppState.liveRealtime.currentTxMbps = Math.max(20, Math.min(95, +(AppState.liveRealtime.currentTxMbps + deltaTx).toFixed(1)));
+    if (isTrafficEnabled) {
+      const ifaceKey = AppState.trafficCollection?.monitoredInterface || 'ether1-WAN';
+      const profiles = {
+        'ether1-WAN': { minRx: 80, maxRx: 320, minTx: 20, maxTx: 95, baseKpps: 34.2 },
+        'ether2-LAN': { minRx: 30, maxRx: 140, minTx: 35, maxTx: 150, baseKpps: 18.5 },
+        'bridge1-Hotspot': { minRx: 50, maxRx: 220, minTx: 12, maxTx: 60, baseKpps: 24.1 },
+        'sfp-sfpplus1': { minRx: 150, maxRx: 480, minTx: 40, maxTx: 160, baseKpps: 52.8 },
+        'all-aggregate': { minRx: 200, maxRx: 580, minTx: 60, maxTx: 190, baseKpps: 75.0 }
+      };
+      const prof = profiles[ifaceKey] || profiles['ether1-WAN'];
 
-    // Shift traffic chart points
-    AppState.trafficHistory.download.shift();
-    AppState.trafficHistory.download.push(AppState.liveRealtime.currentRxMbps);
-    
-    AppState.trafficHistory.upload.shift();
-    AppState.trafficHistory.upload.push(AppState.liveRealtime.currentTxMbps);
+      // Fluctuate realtime bandwidth naturally within the profile limits
+      const deltaRx = (Math.random() * 16 - 8);
+      const deltaTx = (Math.random() * 8 - 4);
+      
+      AppState.liveRealtime.currentRxMbps = Math.max(prof.minRx, Math.min(prof.maxRx, +(AppState.liveRealtime.currentRxMbps + deltaRx).toFixed(1)));
+      AppState.liveRealtime.currentTxMbps = Math.max(prof.minTx, Math.min(prof.maxTx, +(AppState.liveRealtime.currentTxMbps + deltaTx).toFixed(1)));
 
-    // Update real-time DOM counters if on Dashboard or Traffic tab
-    const rxEl = document.getElementById('liveDownloadSpeed');
-    const txEl = document.getElementById('liveUploadSpeed');
-    if (rxEl) rxEl.textContent = `${AppState.liveRealtime.currentRxMbps} Mbps`;
-    if (txEl) txEl.textContent = `${AppState.liveRealtime.currentTxMbps} Mbps`;
+      // Calculate dynamic packet rate (kpps) correlated with throughput
+      const rxSpan = Math.max(1, prof.maxRx - prof.minRx);
+      const rxRatio = (AppState.liveRealtime.currentRxMbps - prof.minRx) / rxSpan;
+      const currentKpps = +(prof.baseKpps * (0.8 + 0.4 * rxRatio) + (Math.random() * 2 - 1)).toFixed(1);
 
-    // Update Header Hardware Meters
+      // Shift traffic chart points (Bandwidth & Packets)
+      AppState.trafficHistory.download.shift();
+      AppState.trafficHistory.download.push(AppState.liveRealtime.currentRxMbps);
+      
+      AppState.trafficHistory.upload.shift();
+      AppState.trafficHistory.upload.push(AppState.liveRealtime.currentTxMbps);
+
+      if (!AppState.trafficHistory.packets) {
+        AppState.trafficHistory.packets = [24, 28, 32, 35, 44, 52, 48, 40, currentKpps];
+      } else {
+        AppState.trafficHistory.packets.shift();
+        AppState.trafficHistory.packets.push(currentKpps);
+      }
+
+      // Update real-time DOM counters if on Dashboard or Traffic tab
+      const rxEl = document.getElementById('liveDownloadSpeed');
+      const txEl = document.getElementById('liveUploadSpeed');
+      if (rxEl) rxEl.textContent = `${AppState.liveRealtime.currentRxMbps} Mbps`;
+      if (txEl) txEl.textContent = `${AppState.liveRealtime.currentTxMbps} Mbps`;
+
+      const livePpsEl = document.getElementById('livePacketsSpeed');
+      if (livePpsEl) livePpsEl.textContent = `${currentKpps} kpps`;
+
+      const peakEl = document.getElementById('trafficPeakVal');
+      if (peakEl && AppState.trafficHistory.download.length) {
+        const maxCurrent = Math.max(...AppState.trafficHistory.download);
+        peakEl.textContent = `${maxCurrent.toFixed(1)} Mbps`;
+      }
+      const avgEl = document.getElementById('trafficAvgVal');
+      if (avgEl && AppState.trafficHistory.download.length) {
+        const avgCurrent = AppState.trafficHistory.download.reduce((a, b) => a + b, 0) / AppState.trafficHistory.download.length;
+        avgEl.textContent = `${avgCurrent.toFixed(1)} Mbps`;
+      }
+      const ppsEl = document.getElementById('trafficPacketsVal');
+      if (ppsEl) {
+        ppsEl.textContent = `${currentKpps} kpps`;
+      }
+    }
+
+    // Update Header Hardware Meters (always runs)
     const cpuVal = Math.round(10 + Math.random() * 6);
     const cpuFill = document.getElementById('headerCpuFill');
     const cpuText = document.getElementById('headerCpuVal');
@@ -1013,12 +1383,157 @@ function startLiveStreamingLoop() {
     if (ramFill) ramFill.style.width = `${Math.round((ramMb / 4096) * 100)}%`;
     if (ramText) ramText.textContent = `${ramMb}MB / 4GB`;
 
+    // Also update Dashboard Hardware Meters if visible
+    const dashCpuFill = document.getElementById('dashboardCpuFill');
+    const dashCpuText = document.getElementById('dashboardCpuVal');
+    if (dashCpuFill) dashCpuFill.style.width = `${cpuVal}%`;
+    if (dashCpuText) dashCpuText.textContent = `${cpuVal}%`;
+
+    const dashRamFill = document.getElementById('dashboardRamFill');
+    const dashRamText = document.getElementById('dashboardRamVal');
+    if (dashRamFill) dashRamFill.style.width = `${Math.round((ramMb / 4096) * 100)}%`;
+    if (dashRamText) dashRamText.textContent = `${(ramMb / 1024).toFixed(1)} GB / 4.0 GB`;
+
     if (AppState.activeTab === 'dashboard') {
-      renderTrafficChart();
+      if (isTrafficEnabled) {
+        renderTrafficChart();
+      }
+      renderDashboardInterfaces();
     } else if (AppState.activeTab === 'traffic') {
       renderRealtimeTrafficView();
     }
   }, 1800);
+}
+
+// ==========================================================================
+// 6.1 Monitored Interface Switcher & Data Collection Controller
+// ==========================================================================
+function toggleTrafficCollection() {
+  if (!AppState.trafficCollection) {
+    AppState.trafficCollection = { enabled: true, monitoredInterface: 'ether1-WAN' };
+  }
+  AppState.trafficCollection.enabled = !AppState.trafficCollection.enabled;
+  const isEnabled = AppState.trafficCollection.enabled;
+
+  const btn = document.getElementById('btnToggleTrafficCollect');
+  const icon = document.getElementById('trafficToggleIcon');
+  const text = document.getElementById('trafficToggleText');
+  const liveDot = document.getElementById('trafficLivePillDot');
+  const statusText = document.getElementById('trafficCollectionStatusText');
+
+  if (btn) {
+    if (isEnabled) {
+      btn.classList.remove('paused');
+      if (text) text.textContent = 'إيقاف مؤقت';
+      if (icon) {
+        icon.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+      }
+      if (liveDot) {
+        liveDot.className = 'live-pill-dot';
+        liveDot.textContent = '● حي';
+        liveDot.title = 'تحديث لحظي كل 1.8 ثانية';
+      }
+      if (statusText) {
+        statusText.textContent = '● نشط (Active)';
+        statusText.style.color = 'var(--accent-emerald)';
+      }
+      showToast('تم استئناف جمع ومراقبة ترافيك البيانات اللحظي', 'info');
+      renderTrafficChart();
+    } else {
+      btn.classList.add('paused');
+      if (text) text.textContent = 'استئناف المراقبة';
+      if (icon) {
+        icon.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+      }
+      if (liveDot) {
+        liveDot.className = 'live-pill-dot paused';
+        liveDot.textContent = '⏸️ متوقف';
+        liveDot.title = 'تم إيقاف جمع البيانات مؤقتاً';
+      }
+      if (statusText) {
+        statusText.textContent = '⏸️ متوقف (Paused)';
+        statusText.style.color = 'var(--accent-amber)';
+      }
+      showToast('تم إيقاف جمع بيانات الترافيك مؤقتاً (تجميد الرسم البياني)', 'warning');
+    }
+  }
+}
+
+function changeMonitoredInterface(iface) {
+  if (!AppState.trafficCollection) {
+    AppState.trafficCollection = { enabled: true, monitoredInterface: 'ether1-WAN' };
+  }
+  AppState.trafficCollection.monitoredInterface = iface;
+
+  const names = {
+    'ether1-WAN': 'ether1-WAN (الخط الرئيسي)',
+    'ether2-LAN': 'ether2-LAN (الشبكة المحلية)',
+    'bridge1-Hotspot': 'bridge1-Hotspot (الهوتسبوت)',
+    'sfp-sfpplus1': 'sfp-sfpplus1 (الألياف الضوئية 10G)',
+    'all-aggregate': 'إجمالي الشبكة (All Ports)'
+  };
+  const label = names[iface] || iface;
+
+  const lblEl = document.getElementById('trafficCurrentInterfaceLabel');
+  if (lblEl) lblEl.textContent = iface;
+
+  const select = document.getElementById('trafficInterfaceSelect');
+  if (select && select.value !== iface) select.value = iface;
+
+  // Re-seed realistic points based on selected interface profile
+  const profiles = {
+    'ether1-WAN': { minRx: 80, maxRx: 320, minTx: 20, maxTx: 95, baseKpps: 34.2 },
+    'ether2-LAN': { minRx: 30, maxRx: 140, minTx: 35, maxTx: 150, baseKpps: 18.5 },
+    'bridge1-Hotspot': { minRx: 50, maxRx: 220, minTx: 12, maxTx: 60, baseKpps: 24.1 },
+    'sfp-sfpplus1': { minRx: 150, maxRx: 480, minTx: 40, maxTx: 160, baseKpps: 52.8 },
+    'all-aggregate': { minRx: 200, maxRx: 580, minTx: 60, maxTx: 190, baseKpps: 75.0 }
+  };
+  const prof = profiles[iface] || profiles['ether1-WAN'];
+
+  AppState.trafficHistory.download = AppState.trafficHistory.download.map(() => 
+    Math.round(prof.minRx + Math.random() * (prof.maxRx - prof.minRx))
+  );
+  AppState.trafficHistory.upload = AppState.trafficHistory.upload.map(() => 
+    Math.round(prof.minTx + Math.random() * (prof.maxTx - prof.minTx))
+  );
+
+  const rxSpan = Math.max(1, prof.maxRx - prof.minRx);
+  AppState.trafficHistory.packets = AppState.trafficHistory.download.map(rx => {
+    const ratio = (rx - prof.minRx) / rxSpan;
+    return +((prof.baseKpps * (0.8 + 0.4 * ratio)) + (Math.random() * 2 - 1)).toFixed(1);
+  });
+
+  const lastRx = AppState.trafficHistory.download[AppState.trafficHistory.download.length - 1];
+  const lastTx = AppState.trafficHistory.upload[AppState.trafficHistory.upload.length - 1];
+  const lastKpps = AppState.trafficHistory.packets[AppState.trafficHistory.packets.length - 1];
+  AppState.liveRealtime.currentRxMbps = lastRx;
+  AppState.liveRealtime.currentTxMbps = lastTx;
+
+  const rxEl = document.getElementById('liveDownloadSpeed');
+  const txEl = document.getElementById('liveUploadSpeed');
+  if (rxEl) rxEl.textContent = `${lastRx.toFixed(1)} Mbps`;
+  if (txEl) txEl.textContent = `${lastTx.toFixed(1)} Mbps`;
+
+  const livePpsEl = document.getElementById('livePacketsSpeed');
+  if (livePpsEl) livePpsEl.textContent = `${lastKpps} kpps`;
+
+  const peakEl = document.getElementById('trafficPeakVal');
+  if (peakEl) {
+    const maxVal = Math.max(...AppState.trafficHistory.download);
+    peakEl.textContent = `${maxVal.toFixed(1)} Mbps`;
+  }
+
+  const avgEl = document.getElementById('trafficAvgVal');
+  if (avgEl) {
+    const avgVal = AppState.trafficHistory.download.reduce((a, b) => a + b, 0) / AppState.trafficHistory.download.length;
+    avgEl.textContent = `${avgVal.toFixed(1)} Mbps`;
+  }
+
+  const ppsEl = document.getElementById('trafficPacketsVal');
+  if (ppsEl) ppsEl.textContent = `${lastKpps} kpps`;
+
+  renderTrafficChart();
+  showToast(`تم تحديد المنفذ المراقب: ${label}`, 'success');
 }
 
 // ==========================================================================
@@ -2844,6 +3359,9 @@ function switchActiveRouter(routerId) {
   AppState.activeRouter = router;
   saveToStorage(STORAGE_KEYS.ACTIVE_ROUTER_ID, router.id);
   renderRoutersDropdown();
+  if (typeof renderUnifiedDashboard === 'function') {
+    renderUnifiedDashboard();
+  }
   showToast(`تم التبديل إلى راوتر: ${router.name}`, 'success');
   closeAllModals();
 }
@@ -2902,6 +3420,9 @@ function exportDatabaseBackupJson() {
 // 17. Navigation & View Switching
 // ==========================================================================
 function switchView(viewName) {
+  if (viewName === 'mikrotik') {
+    viewName = 'dashboard';
+  }
   AppState.activeTab = viewName;
   
   // Close user drawer whenever switching tabs to avoid overlay staying on top
@@ -2946,8 +3467,8 @@ function switchView(viewName) {
   const breadcrumb = document.getElementById('currentBreadcrumb');
   if (breadcrumb) {
     const titles = {
-      dashboard: 'لوحة التحكم الرئيسية',
-      mikrotik: 'أجهزة المايكروتك',
+      dashboard: 'لوحة التحكم والمراقبة الشاملة',
+      mikrotik: 'لوحة التحكم والمراقبة الشاملة',
       hotspot: 'إدارة الهوتسبوت',
       usermanager: 'User Manager',
       pppoe: 'البرودباند (PPPoE)',
@@ -2968,6 +3489,9 @@ function switchView(viewName) {
 
   // Re-render specific view canvas/components
   if (viewName === 'dashboard') {
+    if (typeof renderUnifiedDashboard === 'function') {
+      renderUnifiedDashboard();
+    }
     setTimeout(() => {
       renderTrafficChart();
       renderDonutChart();
@@ -3694,6 +4218,37 @@ function appendTerminalLine(text, type = 'normal') {
   body.scrollTop = body.scrollHeight;
 }
 
+let terminalHistoryIndex = -1;
+
+function handleTerminalKeyDown(event) {
+  const input = document.getElementById('terminalCmdInput');
+  if (!input) return;
+
+  const history = AppState.terminalHistory || [];
+  if (event.key === 'ArrowUp') {
+    if (history.length === 0) return;
+    event.preventDefault();
+    if (terminalHistoryIndex === -1) {
+      terminalHistoryIndex = history.length - 1;
+    } else if (terminalHistoryIndex > 0) {
+      terminalHistoryIndex--;
+    }
+    input.value = history[terminalHistoryIndex] || '';
+  } else if (event.key === 'ArrowDown') {
+    if (history.length === 0) return;
+    event.preventDefault();
+    if (terminalHistoryIndex !== -1) {
+      if (terminalHistoryIndex < history.length - 1) {
+        terminalHistoryIndex++;
+        input.value = history[terminalHistoryIndex] || '';
+      } else {
+        terminalHistoryIndex = -1;
+        input.value = '';
+      }
+    }
+  }
+}
+
 async function handleTerminalSubmit(event) {
   if (event) event.preventDefault();
   const input = document.getElementById('terminalCmdInput');
@@ -3702,8 +4257,19 @@ async function handleTerminalSubmit(event) {
   if (!cmd) return;
 
   input.value = '';
+  terminalHistoryIndex = -1;
   appendTerminalLine(cmd, 'cmd');
+  
+  if (!AppState.terminalHistory) AppState.terminalHistory = [];
   AppState.terminalHistory.push(cmd);
+
+  const clean = cmd.startsWith('/') ? cmd.slice(1).toLowerCase().trim() : cmd.toLowerCase().trim();
+
+  // Instant local clear command
+  if (clean === 'clear' || clean === 'cls') {
+    clearTerminalOutput();
+    return;
+  }
 
   const router = AppState.activeRouter || DEFAULT_ROUTER;
   const result = await MikroTikAPI.executeCliCommand(router, cmd);
@@ -3723,15 +4289,37 @@ async function handleTerminalSubmit(event) {
           appendTerminalLine(`[${idx}] ${summary}`);
         });
       }
-    } else if (typeof result.data === 'object') {
+    } else if (typeof result.data === 'object' && result.data !== null) {
       Object.entries(result.data).forEach(([k, v]) => {
-        appendTerminalLine(`${k.padEnd(20, ' ')} : ${v}`);
+        appendTerminalLine(`${k.padEnd(24, ' ')} : ${v}`);
       });
     } else {
       appendTerminalLine(String(result.data || 'OK'), 'success');
     }
   } else {
-    appendTerminalLine(`Error: ${result.error || 'Command failed'}`, 'error');
+    // If backend proxy failed, fallback to graceful built-in CLI engine response
+    if (clean === 'help' || clean === '?') {
+      appendTerminalLine([
+        "MikroTik RouterOS CLI Terminal - Common Commands Guide:",
+        "-------------------------------------------------------",
+        "  /interface print                  - List all network interfaces & status",
+        "  /ip address print                 - Display IP addresses and assigned subnets",
+        "  /ip route print                   - View routing table & gateways",
+        "  /ip pool print                    - View IP address pools",
+        "  /ip dns print                     - View DNS servers and cache configuration",
+        "  /ip dhcp-server lease print       - List active DHCP leases",
+        "  /ip hotspot user print            - List hotspot users & vouchers",
+        "  /ppp secret print                 - List PPPoE user accounts",
+        "  /system resource print            - Display CPU, memory, uptime, architecture",
+        "  /system routerboard print         - Show RouterBOARD hardware & firmware info",
+        "  /system clock print               - Show system time & timezone",
+        "  /log print                        - View live system event logs",
+        "  /ping <ip>                        - Send ICMP echo requests to target host",
+        "  clear                             - Clear terminal console screen"
+      ].join('\n'));
+    } else {
+      appendTerminalLine(`Error: ${result.error || 'Command failed'}\nType 'help' for command syntax guide.`, 'error');
+    }
   }
 }
 
@@ -4842,6 +5430,7 @@ window.renderAlertsList = renderAlertsList;
 window.clearAllAlerts = clearAllAlerts;
 window.deleteSingleAlert = deleteSingleAlert;
 window.syncRouterDataLive = syncRouterDataLive;
+window.renderUnifiedDashboard = renderUnifiedDashboard;
 window.MikroTikAPI = MikroTikAPI;
 
 // Terminal exports
@@ -4883,4 +5472,8 @@ window.copyDirectDeviceIp = copyDirectDeviceIp;
 window.launchDirectDeviceIp = launchDirectDeviceIp;
 window.pingTargetFromDevice = pingTargetFromDevice;
 window.pingTargetFromDeviceModal = pingTargetFromDeviceModal;
+
+// Traffic Collection & Interface Selection exports
+window.toggleTrafficCollection = toggleTrafficCollection;
+window.changeMonitoredInterface = changeMonitoredInterface;
 

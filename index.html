@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tawaswl ISP Control Center - نظام إدارة شبكات مايكروتك الشامل</title>
   <meta name="description" content="نظام إدارة شبكات مايكروتك وخدمات الإنترنت المتكامل - هوتسبوت، برودباند PPPoE، يوزر مانجر، مراقبة الترافيك وتصميم الكروت" />
-  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/style.css?v=2026.09.25.12" />
   <!-- Standalone High-Speed QR Code Generator -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
@@ -28,13 +28,7 @@
         <li class="nav-item">
           <a class="nav-link active" data-view="dashboard" id="nav-dashboard">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            <span>الرئيسية</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" data-view="mikrotik" id="nav-mikrotik">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
-            <span>الميكروتك</span>
+            <span>لوحة التحكم الرئيسية</span>
           </a>
         </li>
         <li class="nav-item">
@@ -147,16 +141,18 @@
       <header class="top-header">
         <div class="header-left">
           <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="القائمة الجانبية">
-            ☰
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
           </button>
           
           <div class="quick-search">
-            <span class="quick-search-icon">🔍</span>
-            <input type="text" id="globalQuickSearch" placeholder="بحث سريع عن مستخدم، IP، باقة..." />
+            <span class="quick-search-icon">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
+            <input type="text" id="globalQuickSearch" placeholder="بحث سريع عن مشترك، IP، باقة..." />
           </div>
 
           <div class="router-select-dropdown" onclick="openRouterManagerModal()" title="إدارة وتبديل أجهزة المايكروتك">
-            <span>⚡</span>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
             <select id="routerSelectDropdown" class="filter-select" style="border:none; background:transparent; padding:0; cursor:pointer;" onchange="switchActiveRouter(this.value)">
               <!-- Dynamically populated -->
             </select>
@@ -175,43 +171,43 @@
               <div class="hw-bar-track">
                 <div class="hw-bar-fill hw-bar-blue" id="headerCpuFill" style="width: 0%;"></div>
               </div>
-              <span class="hw-val-mono text-blue" id="headerCpuVal">--</span>
+              <span class="hw-val-mono text-blue font-mono" id="headerCpuVal">--</span>
             </div>
             <div class="hw-item" title="استهلاك الذاكرة RAM الحقيقي">
               <span class="hw-label">الذاكرة:</span>
               <div class="hw-bar-track">
                 <div class="hw-bar-fill hw-bar-emerald" id="headerRamFill" style="width: 0%;"></div>
               </div>
-              <span class="hw-val-mono text-emerald" id="headerRamVal">--</span>
+              <span class="hw-val-mono text-emerald font-mono" id="headerRamVal">--</span>
             </div>
           </div>
 
           <div class="hw-uptime-pill" title="وقت التشغيل Uptime الحقيقي للراوتر">
-            <span>⏱️</span>
-            <span id="headerUptimeVal">--</span>
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span class="font-mono" id="headerUptimeVal">--</span>
           </div>
         </div>
 
         <div class="header-right">
           <!-- Refresh Live Status -->
           <button class="icon-btn" onclick="syncRouterDataLive()" title="مزامنة وجلب بيانات حية من الراوتربورد">
-            🔄
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
           </button>
 
           <!-- Notifications Button -->
           <button class="icon-btn" onclick="switchView('alerts')" title="التنبيهات">
-            🔔
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
             <span class="icon-badge" id="headerAlertsBadge" style="display:none;">0</span>
           </button>
 
           <!-- Dark/Light Theme Toggle -->
-          <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="تبديل الوضع">
-            ☀️
+          <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="تبديل الوضع الليلي / النهاري">
+            <svg id="themeIconSvg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
           </button>
 
           <!-- Language Switcher (AR/EN) -->
           <button class="icon-btn" onclick="toggleLanguage()" title="Language / اللغة">
-            🌐
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
           </button>
 
           <!-- User Profile Pill -->
@@ -231,199 +227,243 @@
       <main class="content-body">
 
         <!-- ================================================================
-             1. DASHBOARD VIEW (Quadrant 1 in Screenshot)
+             1. UNIFIED MAIN NOC DASHBOARD (Combines RouterOS & ISP Command Center)
              ================================================================ -->
         <section class="view-panel active" id="view-dashboard">
           <div class="view-header">
             <div class="view-title-group">
               <div class="breadcrumb-trail">
-                <span>الرئيسية</span> / <span class="active" id="currentBreadcrumb">لوحة التحكم الرئيسية</span>
+                <span>النظام</span> / <span class="active" id="currentBreadcrumb">لوحة التحكم والمراقبة الشاملة</span>
               </div>
-              <h1 class="view-main-title">📊 لوحة التحكم الرئيسية</h1>
+              <h1 class="view-main-title">⚡ لوحة التحكم والمراقبة الشاملة</h1>
             </div>
             <div class="view-actions-bar">
-              <button class="btn btn-secondary" onclick="exportWinboxRscScript()">📥 تصدير سكربت Winbox</button>
+              <button class="btn btn-secondary" onclick="syncRouterDataLive()" title="تحديث وقراءة البيانات اللحظية من راوتر MikroTik">🔄 مزامنة حية</button>
+              <button class="btn btn-secondary" onclick="exportWinboxRscScript()" title="تصدير سكريبت Winbox .rsc">📥 تصدير سكربت Winbox</button>
               <button class="btn btn-primary" onclick="openBatchPrintModal()">⚡ توليد وطباعة كروت</button>
+            </div>
+          </div>
+
+          <!-- Active MikroTik Router & Hardware Command Bar -->
+          <div class="router-noc-card" id="dashboardActiveRouterCard">
+            <div class="router-noc-header">
+              <div class="router-noc-title">
+                <span class="status-dot" id="mikrotikLiveDot" style="background:#10b981;"></span>
+                <span class="router-noc-name" id="mikrotikActiveName">CCR2004-16G-2S+ Core</span>
+                <span class="badge-status-pill badge-status-online" id="mikrotikViewStatusPill">
+                  <span class="status-dot"></span> متصل حياً
+                </span>
+                <span class="noc-badge" id="mikrotikViewModel">CCR2004-16G-2S+</span>
+                <span class="noc-badge" id="mikrotikViewVersion">RouterOS v7.14.3</span>
+              </div>
+              <div class="router-noc-tools">
+                <button class="btn btn-secondary btn-sm" onclick="testRouterConnection(AppState.activeRouter.id)">📡 فحص الاتصال</button>
+                <button class="btn btn-secondary btn-sm" onclick="openRouterManagerModal()">⚙️ إدارة الراوترات</button>
+              </div>
+            </div>
+
+            <div class="router-noc-body">
+              <div class="router-meta-col">
+                <div class="noc-meta-item">
+                  <span class="noc-meta-label">العنوان والمنفذ:</span>
+                  <span class="noc-meta-val font-mono" id="mikrotikViewEndpoint">192.168.88.1:443 (REST API)</span>
+                </div>
+                <div class="noc-meta-item">
+                  <span class="noc-meta-label">وقت التشغيل Uptime:</span>
+                  <span class="noc-meta-val" id="mikrotikViewUptime">1d 04h 12m</span>
+                </div>
+                <div class="noc-meta-item">
+                  <span class="noc-meta-label">المعالج والنواة:</span>
+                  <span class="noc-meta-val" id="mikrotikViewCpu">Annapurna Alpine 4-Core 1.7GHz</span>
+                </div>
+              </div>
+
+              <!-- Hardware spark meters -->
+              <div class="router-hw-meters">
+                <div class="hw-meter-box">
+                  <div class="hw-meter-header">
+                    <span>استهلاك المعالج (CPU)</span>
+                    <strong class="font-mono text-blue" id="dashboardCpuVal">18%</strong>
+                  </div>
+                  <div class="hw-meter-track">
+                    <div class="hw-meter-bar bg-blue" id="dashboardCpuFill" style="width: 18%;"></div>
+                  </div>
+                </div>
+
+                <div class="hw-meter-box">
+                  <div class="hw-meter-header">
+                    <span>الذاكرة العشوائية (RAM)</span>
+                    <strong class="font-mono text-emerald" id="dashboardRamVal">1.4 GB / 4.0 GB</strong>
+                  </div>
+                  <div class="hw-meter-track">
+                    <div class="hw-meter-bar bg-emerald" id="dashboardRamFill" style="width: 35%;"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Top 4 KPI Stat Cards -->
           <div class="stats-grid-4">
-            <div class="stat-card stat-purple">
-              <div class="stat-content">
-                <span class="stat-label">المستخدمين الكلي</span>
-                <span class="stat-number" id="kpiTotalUsers">0</span>
-                <span class="stat-badge badge-neutral" id="kpiTotalUsersBadge">إجمالي</span>
-              </div>
-              <div class="stat-icon-wrapper">👥</div>
-            </div>
-
-            <div class="stat-card stat-teal">
-              <div class="stat-content">
-                <span class="stat-label">المتصلين الآن</span>
-                <span class="stat-number" id="liveOnlineCount">0</span>
-                <span class="stat-badge badge-neutral" id="kpiOnlineBadge">مباشر</span>
-              </div>
-              <div class="stat-icon-wrapper">📶</div>
-            </div>
-
             <div class="stat-card stat-blue">
               <div class="stat-content">
-                <span class="stat-label">استهلاك اليوم</span>
-                <span class="stat-number" id="kpiTodayBandwidth">0 <small style="font-size:1rem;">GB</small></span>
-                <span class="stat-badge badge-neutral" id="kpiTrafficBadge">اليوم</span>
+                <span class="stat-label">إجمالي المشتركين</span>
+                <span class="stat-number" id="kpiTotalUsers">0</span>
+                <div class="stat-sub-text" id="kpiTotalUsersBadge">هوتسبوت + برودباند</div>
               </div>
-              <div class="stat-icon-wrapper">☁️</div>
+              <div class="stat-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+            </div>
+
+            <div class="stat-card stat-emerald">
+              <div class="stat-content">
+                <span class="stat-label">المتصلين الآن (Active)</span>
+                <span class="stat-number text-emerald" id="liveOnlineCount">0</span>
+                <div class="stat-sub-text" id="kpiOnlineBadge">جلسات نشطة حالياً</div>
+              </div>
+              <div class="stat-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+              </div>
+            </div>
+
+            <div class="stat-card stat-cyan">
+              <div class="stat-content">
+                <span class="stat-label">استهلاك الإنترنت (اليوم)</span>
+                <span class="stat-number" id="kpiTodayBandwidth">0 <small style="font-size:0.9rem; font-weight:600;">GB</small></span>
+                <div class="stat-sub-text" id="kpiTrafficBadge">معدل استهلاك الشبكة</div>
+              </div>
+              <div class="stat-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+              </div>
             </div>
 
             <div class="stat-card stat-amber">
               <div class="stat-content">
-                <span class="stat-label">عدد الأجهزة المتصلة</span>
-                <span class="stat-number" id="kpiTotalDevices">0</span>
-                <span class="stat-badge badge-neutral" id="kpiDevicesBadge">DHCP</span>
+                <span class="stat-label">الأجهزة المتصلة (DHCP)</span>
+                <span class="stat-number text-amber" id="kpiTotalDevices">0</span>
+                <div class="stat-sub-text" id="kpiDevicesBadge">عناوين IP محجوزة</div>
               </div>
-              <div class="stat-icon-wrapper">📟</div>
+              <div class="stat-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+              </div>
             </div>
           </div>
 
           <!-- Main Grid: Live Bandwidth Chart & User Distribution Donut -->
           <div class="dashboard-grid-2">
-            <!-- Live Traffic Chart Card -->
-            <div class="dashboard-card">
+            <!-- Live Traffic Chart Card (Redesigned, compact and harmonious) -->
+            <div class="dashboard-card traffic-monitor-card">
               <div class="dashboard-card-header">
                 <div class="card-title">
-                  <span>📈 استهلاك الإنترنت (اليوم)</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="title-svg"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                  <span>مراقبة حركة البيانات والترافيك المباشر (Bandwidth)</span>
+                  <span class="live-pill-dot" id="trafficLivePillDot" title="تحديث لحظي كل 1.8 ثانية">● حي</span>
                 </div>
-                <div class="chart-legend-group">
-                  <div class="legend-item">
-                    <span class="legend-color-dot dot-download"></span>
-                    <span>تحميل: <strong id="liveDownloadSpeed">0.0 Mbps</strong></span>
+
+                <div class="traffic-header-controls">
+                  <!-- Interface Selector Dropdown -->
+                  <div class="traffic-interface-selector" title="تحديد المنفذ المراد مراقبة الترافيك فيه">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                    <select id="trafficInterfaceSelect" class="traffic-select-field" onchange="changeMonitoredInterface(this.value)">
+                      <option value="ether1-WAN" selected>ether1-WAN (الخط الرئيسي)</option>
+                      <option value="ether2-LAN">ether2-LAN (الشبكة المحلية)</option>
+                      <option value="bridge1-Hotspot">bridge1-Hotspot (الهوتسبوت)</option>
+                      <option value="sfp-sfpplus1">sfp-sfpplus1 (الألياف الضوئية 10G)</option>
+                      <option value="all-aggregate">إجمالي الشبكة (All Ports)</option>
+                    </select>
                   </div>
-                  <div class="legend-item">
-                    <span class="legend-color-dot dot-upload"></span>
-                    <span>رفع: <strong id="liveUploadSpeed">0.0 Mbps</strong></span>
+
+                  <!-- Toggle Data Collection Button -->
+                  <button type="button" class="btn btn-traffic-toggle" id="btnToggleTrafficCollect" onclick="toggleTrafficCollection()" title="إيقاف مؤقت أو استئناف جمع بيانات الترافيك المباشر">
+                    <span id="trafficToggleIcon">
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                    </span>
+                    <span id="trafficToggleText">إيقاف مؤقت</span>
+                  </button>
+
+                  <div class="traffic-speed-badges">
+                    <div class="speed-chip speed-chip-rx" title="سرعة التحميل اللحظية RX">
+                      <span class="speed-arrow">↓</span>
+                      <span class="speed-label">تحميل:</span>
+                      <strong class="speed-value font-mono" id="liveDownloadSpeed">0.0 Mbps</strong>
+                    </div>
+                    <div class="speed-chip speed-chip-tx" title="سرعة الرفع اللحظية TX">
+                      <span class="speed-arrow">↑</span>
+                      <span class="speed-label">رفع:</span>
+                      <strong class="speed-value font-mono" id="liveUploadSpeed">0.0 Mbps</strong>
+                    </div>
+                    <div class="speed-chip speed-chip-pps" title="معدل تدفق حزم البيانات بالثانية (kpps)">
+                      <span class="speed-arrow">⚡</span>
+                      <span class="speed-label">حزم:</span>
+                      <strong class="speed-value font-mono" id="livePacketsSpeed">34.2 kpps</strong>
+                    </div>
                   </div>
                 </div>
               </div>
+
               <div class="chart-canvas-container">
                 <canvas id="trafficMainCanvas"></canvas>
+              </div>
+
+              <!-- Compact Live Traffic Mini Metrics Bar -->
+              <div class="traffic-summary-strip">
+                <div class="traffic-sum-item">
+                  <span class="sum-lbl">المنفذ المراقب:</span>
+                  <span class="sum-val font-mono" id="trafficCurrentInterfaceLabel">ether1-WAN</span>
+                </div>
+                <div class="traffic-sum-item">
+                  <span class="sum-lbl">حالة الجمع:</span>
+                  <span class="sum-val font-mono" id="trafficCollectionStatusText" style="color:var(--accent-emerald);">● نشط (Active)</span>
+                </div>
+                <div class="traffic-sum-item">
+                  <span class="sum-lbl">ذروة اليوم (Peak):</span>
+                  <span class="sum-val font-mono" id="trafficPeakVal">312.4 Mbps</span>
+                </div>
+                <div class="traffic-sum-item">
+                  <span class="sum-lbl">معدل التحميل (Avg):</span>
+                  <span class="sum-val font-mono" id="trafficAvgVal">148.2 Mbps</span>
+                </div>
+                <div class="traffic-sum-item">
+                  <span class="sum-lbl">حزم البيانات:</span>
+                  <span class="sum-val font-mono" id="trafficPacketsVal">34.2 kpps</span>
+                </div>
               </div>
             </div>
 
             <!-- User Distribution Donut Card -->
-            <div class="dashboard-card">
+            <div class="dashboard-card user-dist-card">
               <div class="dashboard-card-header">
-                <div class="card-title">توزيع المستخدمين حسب النوع</div>
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="title-svg"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                  <span>توزيع المشتركين بالخدمات</span>
+                </div>
+                <span class="donut-active-sub" id="donutTotalCountPill">نشط حالياً</span>
               </div>
               <div class="donut-chart-wrapper">
                 <canvas id="userDistributionCanvas"></canvas>
                 <div class="donut-inner-total">
-                  <div class="donut-total-val" id="donutTotalVal">0</div>
-                  <div class="donut-total-lbl">الإجمالي</div>
+                  <div class="donut-total-val font-mono" id="donutTotalVal">0</div>
+                  <div class="donut-total-lbl">إجمالي المشتركين</div>
                 </div>
                 <div class="donut-legend-list" id="donutLegendList">
-                  <div class="legend-item"><span class="legend-color-dot dot-hotspot"></span> Hotspot: <strong id="legendHotspotCount">0</strong></div>
-                  <div class="legend-item"><span class="legend-color-dot dot-pppoe"></span> PPPoE: <strong id="legendPppoeCount">0</strong></div>
-                  <div class="legend-item"><span class="legend-color-dot dot-userman"></span> User Manager: <strong id="legendUsermanCount">0</strong></div>
+                  <div class="legend-item"><span class="legend-color-dot dot-hotspot"></span> Hotspot: <strong class="font-mono" id="legendHotspotCount">0</strong></div>
+                  <div class="legend-item"><span class="legend-color-dot dot-pppoe"></span> PPPoE: <strong class="font-mono" id="legendPppoeCount">0</strong></div>
+                  <div class="legend-item"><span class="legend-color-dot dot-userman"></span> User Manager: <strong class="font-mono" id="legendUsermanCount">0</strong></div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Secondary Grid: Top Talkers & System Alerts -->
-          <div class="dashboard-grid-2">
-            <!-- Top Consuming Users -->
-            <div class="dashboard-card">
-              <div class="dashboard-card-header">
-                <div class="card-title">👑 أكثر المستخدمين استهلاكاً</div>
-                <span style="font-size:0.75rem; color:var(--text-dim);">هذا الشهر</span>
-              </div>
-              <div class="rank-list-wrapper" id="dashboardTopTalkersList">
-                <div style="text-align:center; padding:2rem 1rem; color:var(--text-dim); font-size:0.85rem;">
-                  لا توجد بيانات استهلاك مستخدمين حالياً
-                </div>
-              </div>
-            </div>
-
-            <!-- System Alerts Card -->
-            <div class="dashboard-card">
-              <div class="dashboard-card-header">
-                <div class="card-title">⚠️ تنبيهات النظام</div>
-                <span class="badge-status-pill badge-status-online" id="dashboardSystemStatusPill">
-                  <span class="status-dot"></span> جاهز
-                </span>
-              </div>
-              <div class="alerts-list-group" id="dashboardAlertsList">
-                <div style="text-align:center; padding:2rem 1rem; color:var(--text-dim); font-size:0.85rem;">
-                  ✅ لا توجد تنبيهات حالية، النظام يعمل بصورة مستقرة
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-        <!-- ================================================================
-             1.5. MIKROTIK ROUTEROS MANAGEMENT VIEW
-             ================================================================ -->
-        <section class="view-panel" id="view-mikrotik">
-          <div class="view-header">
-            <div class="view-title-group">
-              <div class="breadcrumb-trail">
-                <span>الرئيسية</span> / <span class="active">أجهزة الميكروتك</span>
-              </div>
-              <h1 class="view-main-title">⚡ إدارة أجهزة MikroTik RouterOS</h1>
-            </div>
-            <div class="view-actions-bar">
-              <button class="btn btn-secondary" onclick="exportWinboxRscScript()">📥 تصدير كود .rsc</button>
-              <button class="btn btn-primary" onclick="openRouterManagerModal()">+ إضافة راوتر جديد</button>
-            </div>
-          </div>
-
-          <!-- Active MikroTik Info & Hardware Card -->
-          <div class="dashboard-card" style="margin-bottom:1.25rem;">
-            <div class="dashboard-card-header">
-              <div class="card-title">📡 الراوتر المتصل حالياً: <span id="mikrotikActiveName" style="color:var(--primary);">لا يوجد راوتر نشط</span></div>
-              <span class="badge-status-pill badge-status-offline" id="mikrotikViewStatusPill"><span class="status-dot" style="background:#64748b;"></span> غير متصل</span>
-            </div>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:0.75rem;">
-              <div class="stat-card" style="background:var(--bg-input);">
-                <div class="stat-content">
-                  <span class="stat-label">الموديل والمعالج</span>
-                  <span style="font-weight:700; color:var(--text-main); font-size:0.95rem;" id="mikrotikViewModel">--</span>
-                  <span style="font-size:0.72rem; color:var(--text-dim);" id="mikrotikViewCpu">--</span>
-                </div>
-              </div>
-              <div class="stat-card" style="background:var(--bg-input);">
-                <div class="stat-content">
-                  <span class="stat-label">إصدار النظام</span>
-                  <span style="font-weight:700; color:var(--accent-emerald); font-size:0.95rem;" id="mikrotikViewVersion">--</span>
-                  <span style="font-size:0.72rem; color:var(--text-dim);" id="mikrotikViewArch">--</span>
-                </div>
-              </div>
-              <div class="stat-card" style="background:var(--bg-input);">
-                <div class="stat-content">
-                  <span class="stat-label">العنوان والمنفذ</span>
-                  <span class="font-mono" style="font-weight:700; color:var(--secondary); font-size:0.95rem;" id="mikrotikViewEndpoint">--</span>
-                  <span style="font-size:0.72rem; color:var(--text-dim);" id="mikrotikViewProto">REST API</span>
-                </div>
-              </div>
-              <div class="stat-card" style="background:var(--bg-input);">
-                <div class="stat-content">
-                  <span class="stat-label">وقت التشغيل Uptime</span>
-                  <span style="font-weight:700; color:var(--accent-amber); font-size:0.95rem;" id="mikrotikViewUptime">--</span>
-                  <span style="font-size:0.72rem; color:var(--text-dim);" id="mikrotikViewUptimeSub">--</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MikroTik Interfaces & Quick Actions -->
+          <!-- MikroTik Interfaces & Quick Actions (Integrated directly into unified dashboard) -->
           <div class="dashboard-grid-2">
             <div class="table-card">
               <div class="table-toolbar">
-                <div style="font-weight:700;">منافذ الشبكة (Ethernet & SFP Interfaces)</div>
-                <button class="btn btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="syncRouterDataLive()">🔄 تحديث</button>
+                <div style="font-weight:700; display:flex; align-items:center; gap:0.5rem; font-size:0.86rem;">
+                  <span>🔌</span>
+                  <span>منافذ شبكة الراوتر (Ethernet & SFP Interfaces)</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="syncRouterDataLive()">🔄 تحديث المنافذ</button>
               </div>
               <div class="table-responsive">
                 <table class="data-table">
@@ -433,36 +473,90 @@
                       <th>النوع</th>
                       <th>الحالة</th>
                       <th>السرعة المتفاوضة</th>
-                      <th>RX / TX Mbps</th>
+                      <th>معدل النقل RX / TX</th>
                     </tr>
                   </thead>
                   <tbody id="mikrotikInterfacesTableBody">
                     <tr>
-                      <td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-dim);">لا توجد منافذ شبكة مسجلة أو الراوتر غير متصل</td>
+                      <td colspan="5" style="text-align:center; padding:1.25rem; color:var(--text-dim);">جاري تحميل منافذ الراوتر...</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
 
-            <!-- Quick MikroTik Tools -->
+            <!-- Quick MikroTik Operations Tools -->
             <div class="dashboard-card">
               <div class="dashboard-card-header">
-                <div class="card-title">⚡ أدوات وأوامر الميكروتك</div>
+                <div class="card-title" style="font-size:0.9rem;">⚡ عمليات وأوامر الميكروتك السريعة</div>
               </div>
-              <div style="display:flex; flex-direction:column; gap:0.75rem;">
-                <button class="btn btn-secondary" style="justify-content:flex-start;" onclick="testRouterConnection(AppState.activeRouter.id)">
-                  <span>📡</span> <span>فحص اتصال REST API</span>
+              <div class="quick-tools-grid">
+                <button class="tool-btn" onclick="testRouterConnection(AppState.activeRouter.id)">
+                  <span class="tool-btn-icon">📡</span>
+                  <div class="tool-btn-text">
+                    <strong>فحص اتصال REST API</strong>
+                    <small>اختبار سرعة استجابة المنفذ 443</small>
+                  </div>
                 </button>
-                <button class="btn btn-secondary" style="justify-content:flex-start;" onclick="exportWinboxRscScript()">
-                  <span>📥</span> <span>تصدير سكريبت المشتركين .rsc</span>
+                <button class="tool-btn" onclick="exportWinboxRscScript()">
+                  <span class="tool-btn-icon">📥</span>
+                  <div class="tool-btn-text">
+                    <strong>تصدير سكريبت المشتركين .rsc</strong>
+                    <small>نسخ الأوامر واستيرادها في Winbox</small>
+                  </div>
                 </button>
-                <button class="btn btn-secondary" style="justify-content:flex-start;" onclick="showToast('تم أخذ نسخة احتياطية محلية للراوتر', 'success')">
-                  <span>💾</span> <span>أخذ نسخة Backup من الراوتر</span>
+                <button class="tool-btn" onclick="switchView('terminal')">
+                  <span class="tool-btn-icon">💻</span>
+                  <div class="tool-btn-text">
+                    <strong>موجه أوامر RouterOS CLI</strong>
+                    <small>تشغيل الأوامر المباشرة في الراوتر</small>
+                  </div>
                 </button>
-                <button class="btn btn-secondary" style="justify-content:flex-start;" onclick="showToast('تم إرسال إشارة تنظيف الكاش والاتصالات المعلقة', 'info')">
-                  <span>🧹</span> <span>مسح كاش DNS والجلسات المعلقة</span>
+                <button class="tool-btn" onclick="showToast('تم أخذ نسخة احتياطية محلية للراوتر', 'success')">
+                  <span class="tool-btn-icon">💾</span>
+                  <div class="tool-btn-text">
+                    <strong>أخذ نسخة Backup كاملة</strong>
+                    <small>حفظ إعدادات الراوتر والمشتركين</small>
+                  </div>
                 </button>
+                <button class="tool-btn" onclick="showToast('تم إرسال إشارة تنظيف الكاش والاتصالات المعلقة', 'info')">
+                  <span class="tool-btn-icon">🧹</span>
+                  <div class="tool-btn-text">
+                    <strong>مسح كاش DNS والجلسات المعلقة</strong>
+                    <small>إعادة إنعاش الاتصال وحل بطء التصفح</small>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Grid: Top Talkers & System Alerts -->
+          <div class="dashboard-grid-2">
+            <!-- Top Consuming Users -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title" style="font-size:0.9rem;">👑 أكثر المشتركين استهلاكاً (Top Talkers)</div>
+                <span style="font-size:0.72rem; color:var(--text-dim);">هذا الشهر</span>
+              </div>
+              <div class="rank-list-wrapper" id="dashboardTopTalkersList">
+                <div style="text-align:center; padding:1.5rem 1rem; color:var(--text-dim); font-size:0.8rem;">
+                  لا توجد بيانات استهلاك مستخدمين حالياً
+                </div>
+              </div>
+            </div>
+
+            <!-- System Alerts Card -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <div class="card-title" style="font-size:0.9rem;">⚠️ تنبيهات وسجلات الراوتر</div>
+                <span class="badge-status-pill badge-status-online" id="dashboardSystemStatusPill">
+                  <span class="status-dot"></span> جاهز ومستقر
+                </span>
+              </div>
+              <div class="alerts-list-group" id="dashboardAlertsList">
+                <div style="text-align:center; padding:1.5rem 1rem; color:var(--text-dim); font-size:0.8rem;">
+                  ✅ لا توجد تنبيهات حالية، النظام يعمل بصورة مستقرة
+                </div>
               </div>
             </div>
           </div>
@@ -1370,11 +1464,17 @@
           <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; align-items:center;">
             <span style="font-size:0.8rem; font-weight:700; color:var(--text-dim);">أوامر سريعة:</span>
             <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/system resource print')">/system resource print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/interface print')">/interface print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/ip address print')">/ip address print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/ip route print')">/ip route print</button>
             <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/ip hotspot user print')">/ip hotspot user print</button>
             <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/ppp secret print')">/ppp secret print</button>
-            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/interface print')">/interface print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/ip dhcp-server lease print')">/ip dhcp lease print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/system routerboard print')">/system routerboard print</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/system clock print')">/system clock print</button>
             <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/log print')">/log print</button>
             <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('/ping 8.8.8.8')">/ping 8.8.8.8</button>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; font-family:'JetBrains Mono';" onclick="runQuickCommand('help')">help (المساعدة)</button>
           </div>
 
           <!-- Terminal Window Container -->
@@ -1393,13 +1493,43 @@
             <!-- Terminal Output Area -->
             <div id="terminalOutputBody" style="min-height:360px; max-height:480px; overflow-y:auto; padding:1rem; font-family:'JetBrains Mono', monospace; font-size:0.85rem; line-height:1.6; color:#f8fafc; direction:ltr; text-align:left; background:rgba(0,0,0,0.4);">
               <div style="color:#38bdf8;">MikroTik RouterOS 7.14.3 (c) 1999-2024 http://www.mikrotik.com/</div>
-              <div style="color:#64748b; margin-bottom:10px;">Type any RouterOS command or select from quick presets above.</div>
+              <div style="color:#64748b; margin-bottom:10px;">Type any RouterOS command or select from quick presets above. Type 'help' for syntax list.</div>
             </div>
 
             <!-- Terminal Prompt Input Form -->
             <form id="terminalInputForm" onsubmit="handleTerminalSubmit(event)" style="display:flex; align-items:center; background:#0b1120; padding:10px 14px; border-top:1px solid #1e293b; direction:ltr;">
               <span style="color:#10b981; font-family:'JetBrains Mono', monospace; font-weight:700; margin-right:8px;" id="terminalPromptPrefix">[admin@CCR2004] &gt;</span>
-              <input type="text" id="terminalCmdInput" autocomplete="off" spellcheck="false" placeholder="e.g. /system resource print" style="flex:1; background:transparent; border:none; color:#f8fafc; font-family:'JetBrains Mono', monospace; font-size:0.9rem; outline:none;" />
+              <input type="text" id="terminalCmdInput" list="terminalCommandsList" autocomplete="off" spellcheck="false" onkeydown="handleTerminalKeyDown(event)" placeholder="e.g. /interface print, /ip address print, /system resource print..." style="flex:1; background:transparent; border:none; color:#f8fafc; font-family:'JetBrains Mono', monospace; font-size:0.9rem; outline:none;" />
+              <datalist id="terminalCommandsList">
+                <option value="/interface print"></option>
+                <option value="/interface ethernet print"></option>
+                <option value="/interface bridge print"></option>
+                <option value="/ip address print"></option>
+                <option value="/ip route print"></option>
+                <option value="/ip pool print"></option>
+                <option value="/ip dns print"></option>
+                <option value="/ip arp print"></option>
+                <option value="/ip neighbor print"></option>
+                <option value="/ip dhcp-server lease print"></option>
+                <option value="/ip firewall filter print"></option>
+                <option value="/ip firewall nat print"></option>
+                <option value="/ip hotspot user print"></option>
+                <option value="/ip hotspot active print"></option>
+                <option value="/ppp secret print"></option>
+                <option value="/ppp active print"></option>
+                <option value="/queue simple print"></option>
+                <option value="/system resource print"></option>
+                <option value="/system routerboard print"></option>
+                <option value="/system identity print"></option>
+                <option value="/system clock print"></option>
+                <option value="/system package print"></option>
+                <option value="/system health print"></option>
+                <option value="/log print"></option>
+                <option value="/ping 8.8.8.8"></option>
+                <option value="/export"></option>
+                <option value="help"></option>
+                <option value="clear"></option>
+              </datalist>
               <button type="submit" class="btn btn-primary" style="padding:4px 14px; font-size:0.8rem;">تنفيذ ↵</button>
             </form>
           </div>
@@ -2486,11 +2616,11 @@
         </div>
       </div>
       <div class="mobile-more-grid">
-        <a class="mobile-grid-item" data-view="mikrotik">
+        <a class="mobile-grid-item" onclick="openRouterManagerModal(); document.getElementById('mobileMoreSheet')?.classList.remove('active');">
           <div class="grid-icon" style="background:rgba(59,130,246,0.15); color:var(--primary);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
           </div>
-          <span>الميكروتك</span>
+          <span>إدارة الراوترات</span>
         </a>
         <a class="mobile-grid-item" data-view="usermanager">
           <div class="grid-icon" style="background:rgba(245,158,11,0.15); color:var(--accent-amber);">
